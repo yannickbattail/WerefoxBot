@@ -8,7 +8,12 @@ namespace WerefoxBot.Game
     internal class Game
     {
         public List<Player> Players { get; set; } = new List<Player>();
-        public DiscordChannel? WerefoxesChannel { get; set; }
+        public DiscordChannel Channel { get; set; }
+
+        public Game(DiscordChannel channel)
+        {
+            Channel = channel;
+        }
 
         public void ShuffleWereFoxes()
         {
