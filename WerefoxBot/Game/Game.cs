@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DSharpPlus.Entities;
 
 namespace WerefoxBot.Game
@@ -13,6 +14,16 @@ namespace WerefoxBot.Game
         {
             var indexWereFox = new Random().Next(Players.Count);
             Players[indexWereFox].IsWereFox = true;
+        }
+
+        public Player? GetByName(string? displayName)
+        {
+            return Players.FirstOrDefault(p => p.User.DisplayName == displayName);
+        }
+        
+        public Player? GetById(ulong? id)
+        {
+            return Players.FirstOrDefault(p => p.User.Id == id);
         }
     }
 }

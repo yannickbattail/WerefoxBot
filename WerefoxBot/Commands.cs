@@ -1,27 +1,4 @@
-﻿// THIS FILE IS A PART OF EMZI0767'S BOT EXAMPLES
-//
-// --------
-// 
-// Copyright 2017 Emzi0767
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// 
-//  http://www.apache.org/licenses/LICENSE-2.0
-// 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// --------
-//
-// This is an interactivity example. It shows how to properly utilize 
-// Interactivity module.
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -43,19 +20,51 @@ namespace WerefoxBot
         public async Task Eat(CommandContext context, [Description("Player you want to eat")]
             string playerToEat)
         {
-            await context.RespondAsync("eat "+playerToEat);
+            if (!context.Channel.IsPrivate || context.Channel.Type != ChannelType.Private)
+            {
+                context.RespondAsync("The command ;;eat must be use only in private chanel.");
+                return;
+            }
+
             if (CurrentGame == null)
             {
                  context.RespondAsync("No game is started");
                  return;
             }
+            var currentPlayer = CurrentGame.GetById(((DiscordDmChannel) context.Channel).Recipients[0].Id);
+            if (!currentPlayer.IsWereFox)
+            {
+                context.RespondAsync("You are not a werefox, you don't eat people.");
+                return;
+            }
+            if (!currentPlayer.IsAlive)
+            {
+                context.RespondAsync("You are dead. :skull:");
+                return;
+            }
 
-            Player? playerEaten = await CheckNickname(context, playerToEat);
-
+            currentPlayer.Vote = await CheckNickname(context, playerToEat);
+            CheckVotesEat(context);
+            
         }
 
+
+        private async Task CheckVotesEat(CommandContext context)
+        {
+            if (CurrentGame.Players.Where(p => p.IsWereFox).Any(p => p.Vote != null))
+            {
+                var playerEaten = CurrentGame.Players.GroupBy(p => p.Vote).OrderByDescending(p => p.Count()).First().First();
+                playerEaten.IsAlive = false;
+                CurrentGame.Players.ForEach(p => p.Vote = null);
+                await CurrentGame.WerefoxesChannel.SendMessageAsync($"{playerEaten.User.Mention} has been eaten by werefoxes.");
+            }
+
+            return;
+        }
+        
         private async Task<Player?> CheckNickname(CommandContext context, string playerToEat)
         {
+            playerToEat = playerToEat.Replace("@", "");
             Player? playerEaten = CurrentGame.Players.FirstOrDefault(p => p.User.DisplayName == playerToEat);
             if (playerEaten == null)
             {
@@ -83,6 +92,12 @@ namespace WerefoxBot
             if (context == null)
             {
                 throw new ArgumentException(nameof(context));
+            }
+
+            if (CurrentGame != null)
+            {
+                await context.RespondAsync("A game is already started. You can stop it with ;;stop .");
+                return;
             }
 
             DiscordEmoji emoji = DiscordEmoji.FromName(context.Client, ":+1:");
