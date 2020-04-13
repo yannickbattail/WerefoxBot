@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +20,69 @@ namespace WerefoxBot
     {
         private Game.Game? CurrentGame { get; set; }
 
+        [Command("vote"), Description("Vote for a player to sacrifice")]
+        public async Task Vote(CommandContext context, [Description("player to sacrifice")]
+            string playerToSacrifice)
+        {
+            if (context == null)
+            {
+                throw new ArgumentException("missing parameter", nameof(context));
+            }
+            if (context.Channel.IsPrivate || context.Channel.Type == ChannelType.Private)
+            {
+                await context.RespondAsync("The command ;;vote must not be use only in private chanel.");
+                return;
+            }
+            if (CurrentGame == null)
+            {
+                 await context.RespondAsync("No game is started");
+                 return;
+            }
+            var currentPlayer = CurrentGame.GetById(((DiscordDmChannel) context.Channel).Recipients[0].Id);
+            if (!currentPlayer.IsAlive)
+            {
+                await context.RespondAsync("You are dead. :skull:");
+                return;
+            }
+
+            currentPlayer.Vote = await CheckNickname(context, playerToSacrifice);
+            await CheckVotes(context);
+        }
+                
+        private async Task<Player?> CheckNickname(CommandContext context, string playerToEat)
+        {
+            Player? playerEaten = CurrentGame.GetByName(playerToEat);
+            if (playerEaten == null)
+            {
+                await context.RespondAsync($"no player with this nickname ({playerToEat})");
+                return null;
+            }
+            if (!playerEaten.IsAlive)
+            {
+                await context.RespondAsync($"{playerEaten.User.Mention}, is dead. Choose somebody else.");
+                return null;
+            }
+
+            await context.RespondAsync($"You vote to sacrifice: ({playerEaten.User.Mention})");
+            return playerEaten;
+        }
+
+        private async Task CheckVotes(CommandContext context)
+        {
+            if (CurrentGame.GetAlivePlayers().Any(p => p.Vote != null))
+            {
+                var playerEaten = CurrentGame.GetAlivePlayers().GroupBy(p => p.Vote).OrderByDescending(p => p.Count()).First().Key;
+                playerEaten.IsAlive = false;
+                CurrentGame.ResetVotes();
+                await CurrentGame.Channel.SendMessageAsync($"{playerEaten.User.Mention} has been sacrificed. He was a " + playerEaten.WerefoxToString());
+                await CurrentGame.Channel.SendMessageAsync("Remaining players: " + DisplayPlayerList(CurrentGame.GetAlivePlayers()));
+                if (!await CheckWin())
+                {
+                    Night(context);
+                }
+            }
+        }
+        
         [Command("eat"), Description("Eat a player")]
         public async Task Eat(CommandContext context, [Description("Player you want to eat")]
             string playerToEat)
@@ -39,7 +103,7 @@ namespace WerefoxBot
                  return;
             }
             var currentPlayer = CurrentGame.GetById(((DiscordDmChannel) context.Channel).Recipients[0].Id);
-            if (!currentPlayer.IsWereFox)
+            if (!currentPlayer.IsWerefox)
             {
                 await context.RespondAsync("You are not a werefox, you don't eat people.");
                 return;
@@ -50,41 +114,43 @@ namespace WerefoxBot
                 return;
             }
 
-            currentPlayer.Vote = await CheckNickname(context, playerToEat);
+            currentPlayer.Vote = await CheckNicknameWerefox(context, playerToEat);
             await CheckVotesEat();
         }
         
         private async Task CheckVotesEat()
         {
-            if (CurrentGame.Players.Where(p => p.IsWereFox).Any(p => p.Vote != null))
+            if (CurrentGame.GetWerefoxes().Any(p => p.Vote != null))
             {
-                var playerEaten = CurrentGame.Players.GroupBy(p => p.Vote).OrderByDescending(p => p.Count()).First().First();
+                var playerEaten = CurrentGame.GetWerefoxes().GroupBy(p => p.Vote).OrderByDescending(p => p.Count()).First().Key;
                 playerEaten.IsAlive = false;
-                CurrentGame.Players.ForEach(p => p.Vote = null);
+                CurrentGame.ResetVotes();
                 await CurrentGame.Channel.SendMessageAsync($"{playerEaten.User.Mention} has been eaten by werefoxes. He was a " + playerEaten.WerefoxToString());
-                await CurrentGame.Channel.SendMessageAsync("Remaining players: " + string.Join(", ", 
-                    CurrentGame.Players
-                        .Where(p => p.IsAlive)
-                        .Select(p => p.User.Mention)));
+                await CurrentGame.Channel.SendMessageAsync("Remaining players: " + DisplayPlayerList(CurrentGame.GetAlivePlayers()));
+                if (!await CheckWin())
+                {
+                    await Day();
+                }
             }
         }
-        
-        private async Task CheckWin()
+
+        private async Task<bool> CheckWin()
         {
-            var alivePlayers = CurrentGame.Players.Where(p => p.IsAlive);
-            if (alivePlayers.Count() == 1)
+            var alivePlayers = CurrentGame.Players.Where(p => p.IsAlive).ToList();
+            if (alivePlayers.Count != 1)
             {
-                var winner = alivePlayers.First();
-                await CurrentGame.Channel.SendMessageAsync("The Game has finished."
-                    + $"And the winner is: {winner.User.Mention}");
-                CurrentGame = null;
+                return false;
             }
+            var winner = alivePlayers.First();
+            await CurrentGame.Channel.SendMessageAsync("The Game has finished.\n"
+                                                       + $"And the winner is: {winner.User.Mention}");
+            CurrentGame = null;
+            return true;
         }
         
-        private async Task<Player?> CheckNickname(CommandContext context, string playerToEat)
+        private async Task<Player?> CheckNicknameWerefox(CommandContext context, string playerToEat)
         {
-            playerToEat = playerToEat.Replace("@", "", StringComparison.InvariantCultureIgnoreCase);
-            Player? playerEaten = CurrentGame.Players.FirstOrDefault(p => p.User.DisplayName.Equals(playerToEat, StringComparison.InvariantCultureIgnoreCase));
+            Player? playerEaten = CurrentGame.GetByName(playerToEat);
             if (playerEaten == null)
             {
                 await context.RespondAsync($"no player with this nickname ({playerToEat})");
@@ -95,13 +161,13 @@ namespace WerefoxBot
                 await context.RespondAsync($"{playerEaten.User.Mention}, is dead. Choose somebody else.");
                 return null;
             }
-            if (playerEaten.IsWereFox)
+            if (playerEaten.IsWerefox)
             {
                 await context.RespondAsync($"{playerEaten.User.Mention}, is a werefox. Choose somebody else.");
                 return null;
             }
 
-            await context.RespondAsync($"Your vote to eat: ({playerEaten.User.Mention})");
+            await context.RespondAsync($"You vote to eat: ({playerEaten.User.Mention})");
             return playerEaten;
         }
 
@@ -148,13 +214,18 @@ namespace WerefoxBot
                     .SelectMany(r => r.Users)
                     .Where(u => !u.IsBot)
                     .Select(u => new Player( context.Guild.Members[u.Id])));
-                await context.RespondAsync("Players: " + string.Join(", ", CurrentGame.Players.Select(p => p.User.Mention)));
+                await context.RespondAsync("Players: " + DisplayPlayerList(CurrentGame.Players));
                 StartGame(context);
             }
             else
             {
                 await context.RespondAsync("Nobody? Really?");
             }
+        }
+
+        private string DisplayPlayerList(IEnumerable<Player> players)
+        {
+            return string.Join(", ", players.Select(p => p.User.Mention));
         }
 
         [Command("stop"), Description("stop a new game.")]
@@ -195,22 +266,28 @@ namespace WerefoxBot
                 player.dmChannel = await player.User.CreateDmChannelAsync();
                 await player.dmChannel.SendMessageAsync("You are a " + player.WerefoxToString());
             }
-
-            var werefoxes = CurrentGame.Players.Where(p => p.IsWereFox).ToList();
-            foreach (var werefox in werefoxes)
+            
+            foreach (var werefox in CurrentGame.GetWerefoxes())
             {
-                await werefox.dmChannel.SendMessageAsync("The other werefoxes are: "
-                                                         + String.Join(", ", werefoxes.Select(w => w.User.Mention)));
+                await werefox.dmChannel.SendMessageAsync("The other werefoxes are: " + DisplayPlayerList(CurrentGame.GetWerefoxes()));
             }
         }
         
+        private async Task Day()
+        {
+            CurrentGame.IsDay = true;
+            await CurrentGame.Channel.SendMessageAsync(
+                "The sun is rising, the village awakes. Now you have to vote for who you will sacrifice, use the command ;;vote ");
+        }
+
         private async void Night(CommandContext context)
         {
+            CurrentGame.IsDay = false;
             await context.RespondAsync("The night is falling.\n"
                                        +"The village is sleeping.");
             await context.RespondAsync("The werefoxes go out!");
             await context.RespondAsync("Werefoxes! It's time to decide who you will eat. Go to the direct message with WereFoxBot.");
-            foreach (var werefox in CurrentGame.Players.Where(p => p.IsWereFox))
+            foreach (var werefox in CurrentGame.Players.Where(p => p.IsWerefox))
             {
                 await  werefox.dmChannel.SendMessageAsync("Werefoxes! It's time to decide who you will eat. Send ;;eat NICKNAME in direct message to WereFoxBot.");
             }
