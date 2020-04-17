@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,8 +7,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
-using WerefoxBot.Game;
-// ReSharper disable CA2007
+using WerefoxBot.Model;
 
 namespace WerefoxBot
 {
@@ -18,279 +16,126 @@ namespace WerefoxBot
     [SuppressMessage("ReSharper", "CA2007")]
     public class Commands : BaseCommandModule
     {
-        private Game.Game? CurrentGame { get; set; }
+        private WerefoxService Service { get; set; } = new WerefoxService();
 
-        [Command("vote"), Description("Vote for a player to sacrifice")]
-        public async Task Vote(CommandContext context, [Description("player to sacrifice")]
+        [Command("sacrifice"), Description("Vote for a player to sacrifice")]
+        public async Task Sacrifice (CommandContext ctx, [Description("player to sacrifice")]
             string playerToSacrifice)
         {
-            if (context == null)
+            var errorMessage = Service.CheckCommandContext(ctx, false, GameStep.Day, PlayerState.Alive, null);
+            if (errorMessage != null)
             {
-                throw new ArgumentException("missing parameter", nameof(context));
-            }
-            if (context.Channel.IsPrivate || context.Channel.Type == ChannelType.Private)
-            {
-                await context.RespondAsync("The command ;;vote must not be use only in private chanel.");
-                return;
-            }
-            if (CurrentGame == null)
-            {
-                 await context.RespondAsync("No game is started");
-                 return;
-            }
-            var currentPlayer = CurrentGame.GetById(((DiscordDmChannel) context.Channel).Recipients[0].Id);
-            if (!currentPlayer.IsAlive)
-            {
-                await context.RespondAsync("You are dead. :skull:");
+                await ctx.RespondAsync(errorMessage);
                 return;
             }
 
-            currentPlayer.Vote = await CheckNickname(context, playerToSacrifice);
-            await CheckVotes(context);
-        }
-                
-        private async Task<Player?> CheckNickname(CommandContext context, string playerToEat)
-        {
-            Player? playerEaten = CurrentGame.GetByName(playerToEat);
-            if (playerEaten == null)
-            {
-                await context.RespondAsync($"no player with this nickname ({playerToEat})");
-                return null;
-            }
-            if (!playerEaten.IsAlive)
-            {
-                await context.RespondAsync($"{playerEaten.User.Mention}, is dead. Choose somebody else.");
-                return null;
-            }
-
-            await context.RespondAsync($"You vote to sacrifice: ({playerEaten.User.Mention})");
-            return playerEaten;
+            await Service.sacrifice(ctx, playerToSacrifice);
         }
 
-        private async Task CheckVotes(CommandContext context)
-        {
-            if (CurrentGame.GetAlivePlayers().Any(p => p.Vote != null))
-            {
-                var playerEaten = CurrentGame.GetAlivePlayers().GroupBy(p => p.Vote).OrderByDescending(p => p.Count()).First().Key;
-                playerEaten.IsAlive = false;
-                CurrentGame.ResetVotes();
-                await CurrentGame.Channel.SendMessageAsync($"{playerEaten.User.Mention} has been sacrificed. He was a " + playerEaten.WerefoxToString());
-                await CurrentGame.Channel.SendMessageAsync("Remaining players: " + DisplayPlayerList(CurrentGame.GetAlivePlayers()));
-                if (!await CheckWin())
-                {
-                    Night(context);
-                }
-            }
-        }
-        
         [Command("eat"), Description("Eat a player")]
-        public async Task Eat(CommandContext context, [Description("Player you want to eat")]
+        public async Task Eat(CommandContext ctx, [Description("Player you want to eat")]
             string playerToEat)
         {
-            if (context == null)
+            var errorMessage = Service.CheckCommandContext(ctx, true, GameStep.Night, PlayerState.Alive, Card.Werefox);
+            if (errorMessage != null)
             {
-                throw new ArgumentException("missing parameter", nameof(context));
-            }
-            if (!context.Channel.IsPrivate || context.Channel.Type != ChannelType.Private)
-            {
-                await context.RespondAsync("The command ;;eat must be use only in private chanel.");
+                ctx.RespondAsync(errorMessage);
                 return;
             }
-
-            if (CurrentGame == null)
-            {
-                 await context.RespondAsync("No game is started");
-                 return;
-            }
-            var currentPlayer = CurrentGame.GetById(((DiscordDmChannel) context.Channel).Recipients[0].Id);
-            if (!currentPlayer.IsWerefox)
-            {
-                await context.RespondAsync("You are not a werefox, you don't eat people.");
-                return;
-            }
-            if (!currentPlayer.IsAlive)
-            {
-                await context.RespondAsync("You are dead. :skull:");
-                return;
-            }
-
-            currentPlayer.Vote = await CheckNicknameWerefox(context, playerToEat);
-            await CheckVotesEat();
+            await Service.Eat(ctx, playerToEat);
         }
+
+        private bool GameInCreation = false;
         
-        private async Task CheckVotesEat()
-        {
-            if (CurrentGame.GetWerefoxes().Any(p => p.Vote != null))
-            {
-                var playerEaten = CurrentGame.GetWerefoxes().GroupBy(p => p.Vote).OrderByDescending(p => p.Count()).First().Key;
-                playerEaten.IsAlive = false;
-                CurrentGame.ResetVotes();
-                await CurrentGame.Channel.SendMessageAsync($"{playerEaten.User.Mention} has been eaten by werefoxes. He was a " + playerEaten.WerefoxToString());
-                await CurrentGame.Channel.SendMessageAsync("Remaining players: " + DisplayPlayerList(CurrentGame.GetAlivePlayers()));
-                if (!await CheckWin())
-                {
-                    await Day();
-                }
-            }
-        }
-
-        private async Task<bool> CheckWin()
-        {
-            var alivePlayers = CurrentGame.Players.Where(p => p.IsAlive).ToList();
-            if (alivePlayers.Count != 1)
-            {
-                return false;
-            }
-            var winner = alivePlayers.First();
-            await CurrentGame.Channel.SendMessageAsync("The Game has finished.\n"
-                                                       + $"And the winner is: {winner.User.Mention}");
-            CurrentGame = null;
-            return true;
-        }
-        
-        private async Task<Player?> CheckNicknameWerefox(CommandContext context, string playerToEat)
-        {
-            Player? playerEaten = CurrentGame.GetByName(playerToEat);
-            if (playerEaten == null)
-            {
-                await context.RespondAsync($"no player with this nickname ({playerToEat})");
-                return null;
-            }
-            if (!playerEaten.IsAlive)
-            {
-                await context.RespondAsync($"{playerEaten.User.Mention}, is dead. Choose somebody else.");
-                return null;
-            }
-            if (playerEaten.IsWerefox)
-            {
-                await context.RespondAsync($"{playerEaten.User.Mention}, is a werefox. Choose somebody else.");
-                return null;
-            }
-
-            await context.RespondAsync($"You vote to eat: ({playerEaten.User.Mention})");
-            return playerEaten;
-        }
-
         [Command("start"), Description("Start a new game.")]
-        public async Task Start(CommandContext context, [Description("How long should the poll last.")] TimeSpan duration)
+        public async Task Start(CommandContext ctx, [Description("How long should the poll last.")] TimeSpan duration)
         {
-            if (context == null)
+            if (ctx == null)
             {
-                throw new ArgumentException("missing parameter", nameof(context));
+                throw new ArgumentException("missing parameter", nameof(ctx));
             }
-            if (context.Channel.IsPrivate || context.Channel.Type == ChannelType.Private)
+            if (ctx.Channel.IsPrivate || ctx.Channel.Type == ChannelType.Private)
             {
-                await context.RespondAsync("The command ;;start must not be use only in private chanel.");
+                var prefix = $":no_entry: The command {ctx.Prefix}{ctx.Command.Name} must be use ";
+                await ctx.RespondAsync(prefix + "only in private chanel.");
                 return;
             }
             
-            if (CurrentGame != null)
+            if (GameInCreation)
             {
-                await context.RespondAsync("A game is already started. You can stop it with ;;stop .");
+                await ctx.RespondAsync(":warning: A game is already waiting for player. Join it!");
+                return;
+            }
+            
+            if (Service.IsStated())
+            {
+                await ctx.RespondAsync($":no_entry: A game is already started. You can stop it with {ctx.Prefix}stop .");
                 return;
             }
 
-            DiscordEmoji emoji = DiscordEmoji.FromName(context.Client, ":+1:");
+            var emoji = DiscordEmoji.FromName(ctx.Client, ":+1:");
             // first retrieve the interactivity module from the client
-            InteractivityExtension interactivity = context.Client.GetInteractivity();
-
+            var interactivity = ctx.Client.GetInteractivity();
             // then let's present the poll
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = $"Start a game, who's in ? React {emoji} to join the game. ",
                 Description = $"React {emoji} to join the game. You have {duration} to do it."
             };
-            DiscordMessage msg = await context.RespondAsync(embed: embed);
+            DiscordMessage msg = await ctx.RespondAsync(embed: embed);
+            GameInCreation = true;
             await msg.CreateReactionAsync(emoji);
 
-            CurrentGame = new Game.Game(context.Channel);
             // wait for anyone who types it
             var reply = await interactivity.CollectReactionsAsync(msg, duration);
-
-            if (reply.Any())
-            {
-                CurrentGame.Players.AddRange(reply
-                    .Where(r => r.Emoji == emoji)
-                    .SelectMany(r => r.Users)
-                    .Where(u => !u.IsBot)
-                    .Select(u => new Player( context.Guild.Members[u.Id])));
-                await context.RespondAsync("Players: " + DisplayPlayerList(CurrentGame.Players));
-                StartGame(context);
-            }
-            else
-            {
-                await context.RespondAsync("Nobody? Really?");
-            }
-        }
-
-        private string DisplayPlayerList(IEnumerable<Player> players)
-        {
-            return string.Join(", ", players.Select(p => p.User.Mention));
+            var discordUsers = reply
+                .Where(r => r.Emoji == emoji)
+                .SelectMany(r => r.Users)
+                .Where(u => !u.IsBot);
+            GameInCreation = false;
+            await Service.Start(ctx, discordUsers);
         }
 
         [Command("stop"), Description("stop a new game.")]
-        public async Task Stop(CommandContext context)
+        public async Task Stop(CommandContext ctx)
         {
-            if (context == null)
+            var errorMessage = Service.CheckCommandContext(ctx, false, null, null, null);
+            if (errorMessage != null)
             {
-                throw new ArgumentException("missing parameter", nameof(context));
-            }
-            if (context.Channel.IsPrivate || context.Channel.Type == ChannelType.Private)
-            {
-                await context.RespondAsync("The command ;;stop must not be use only in private chanel.");
+                ctx.RespondAsync(errorMessage);
                 return;
             }
-
-            if (CurrentGame == null)
-            {
-                await context.RespondAsync("No game started.");
-            }
-            else
-            {
-                CurrentGame = null;
-                await context.RespondAsync("Game Stopped."); 
-            }
+            await Service.Stop(ctx);
         }
 
-        private void StartGame(CommandContext context)
+        [Command("reveal"), Description("Reveal your card.")]
+        public async Task Reveal(CommandContext ctx)
         {
-            CurrentGame.ShuffleWereFoxes();
-            TellWereFox();
-            Night(context);
-        }
-        
-        private async void TellWereFox()
-        {
-            foreach (var player in CurrentGame.Players)
+            var errorMessage = Service.CheckCommandContext(ctx, false, null, null, null);
+            if (errorMessage != null)
             {
-                player.dmChannel = await player.User.CreateDmChannelAsync();
-                await player.dmChannel.SendMessageAsync("You are a " + player.WerefoxToString());
+                ctx.RespondAsync(errorMessage);
+                return;
             }
-            
-            foreach (var werefox in CurrentGame.GetWerefoxes())
+            await ctx.RespondAsync("Answer 'yes' to confirm. This will reveal who you are.");
+            var interactivity = ctx.Client.GetInteractivity();
+            var msg = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromSeconds(60));
+            if (!msg.TimedOut && msg.Result.Content.Equals("yes", StringComparison.InvariantCultureIgnoreCase))
             {
-                await werefox.dmChannel.SendMessageAsync("The other werefoxes are: " + DisplayPlayerList(CurrentGame.GetWerefoxes()));
+                await Service.Reveal(ctx);
             }
         }
         
-        private async Task Day()
+        [Command("status"), Description("Status of the current game.")]
+        public async Task Status(CommandContext? ctx)
         {
-            CurrentGame.IsDay = true;
-            await CurrentGame.Channel.SendMessageAsync(
-                "The sun is rising, the village awakes. Now you have to vote for who you will sacrifice, use the command ;;vote ");
-        }
-
-        private async void Night(CommandContext context)
-        {
-            CurrentGame.IsDay = false;
-            await context.RespondAsync("The night is falling.\n"
-                                       +"The village is sleeping.");
-            await context.RespondAsync("The werefoxes go out!");
-            await context.RespondAsync("Werefoxes! It's time to decide who you will eat. Go to the direct message with WereFoxBot.");
-            foreach (var werefox in CurrentGame.Players.Where(p => p.IsWerefox))
+            var errorMessage = Service.CheckCommandContext(ctx, null, null, null, null);
+            if (errorMessage != null)
             {
-                await  werefox.dmChannel.SendMessageAsync("Werefoxes! It's time to decide who you will eat. Send ;;eat NICKNAME in direct message to WereFoxBot.");
+                ctx.RespondAsync(errorMessage);
+                return;
             }
+            await Service.Status(ctx);
         }
     }
 }
