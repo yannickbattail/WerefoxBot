@@ -57,7 +57,7 @@ namespace WerefoxBot
         {
             electedPlayer.State = PlayerState.Dead;
             await CurrentGame.Channel.SendMessageAsync(
-                $"{electedPlayer.User.Mention} has been eaten by werefoxes :werefox:. Yum yum :yum:. He was a {Utils.CardToS(electedPlayer.Card)}.");
+                $"{electedPlayer.User.Mention} has been eaten by werefoxes :fox:. Yum yum :yum:. He was a {Utils.CardToS(electedPlayer.Card)}.");
             await CurrentGame.Channel.SendMessageAsync("Remaining players: " +
                                                        Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
             if (!await CheckWin())
@@ -148,16 +148,6 @@ namespace WerefoxBot
             await ctx.RespondAsync(":stop_sign: Game Stopped.");
         }
         
-        internal async Task Status(CommandContext ctx)
-        {
-            await ctx.RespondAsync($"It's now the {Utils.StepToS(CurrentGame.Step)}.");
-            await ctx.RespondAsync(Utils.AliveToS(PlayerState.Alive) + " players are: " +
-                                       Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
-            await ctx.RespondAsync(Utils.AliveToS(PlayerState.Dead) + " players are: " +
-                                       Utils.DisplayPlayerList(CurrentGame.GetDeadPlayers()));
-        }
-
-        
         public void ShuffleWereFoxes()
         {
             var indexWereFox = new Random().Next(CurrentGame.Players.Count);
@@ -174,7 +164,7 @@ namespace WerefoxBot
             
             foreach (var werefox in CurrentGame.GetAliveWerefoxes())
             {
-                await werefox.dmChannel.SendMessageAsync("The other werefoxes :werefox: are: " + Utils.DisplayPlayerList(CurrentGame.GetAliveWerefoxes()));
+                await werefox.dmChannel.SendMessageAsync("The other werefoxes :fox: are: " + Utils.DisplayPlayerList(CurrentGame.GetAliveWerefoxes()));
             }
         }
         
@@ -190,11 +180,11 @@ namespace WerefoxBot
         private async void Night(CommandContext ctx)
         {
             CurrentGame.Step = GameStep.Night;
-            await ctx.RespondAsync("The night is falling :crescent_moon:. The village is sleeping :sleeping: . The werefoxes :werefox: go out!");
+            await ctx.RespondAsync("The night is falling :crescent_moon:. The village is sleeping :sleeping: . The werefoxes :fox: go out!");
             await ctx.RespondAsync("Werefoxes! It's time to decide who you will eat :yum:. Go to the direct message with WereFoxBot.");
             foreach (var werefox in CurrentGame.Players.Where(p => p.IsWerefox()))
             {
-                await  werefox.dmChannel.SendMessageAsync($"Werefoxes! :werefox: It's time to decide who you will eat :yum:. Send {ctx.Prefix}eat NICKNAME in direct message to WereFoxBot.");
+                await  werefox.dmChannel.SendMessageAsync($"Werefoxes! :fox: It's time to decide who you will eat :yum:. Send {ctx.Prefix}eat NICKNAME in direct message to WereFoxBot.");
             }
         }
 
@@ -211,6 +201,26 @@ namespace WerefoxBot
                 throw new InvalidOperationException("No current player can be found "+ctx.User);
             }
             return currentPlayer;
+        }
+
+        public async Task WhoIsWho(CommandContext ctx)
+        {
+            ctx.RespondAsync($"Result of the vote: \r\n"
+                             + String.Join("\r\n", CurrentGame.Players.Select(playerStatus)));
+        }
+
+        private static string playerStatus(Player p)
+        {
+            return $"- {p.User.Mention} is {Utils.AliveToS(p.State)} and is a  {Utils.CardToS(p.Card)}.";
+        }
+                
+        internal async Task Status(CommandContext ctx)
+        {
+            await ctx.RespondAsync($"It's now the {Utils.StepToS(CurrentGame.Step)}.");
+            await ctx.RespondAsync(Utils.AliveToS(PlayerState.Alive) + " players are: " +
+                                   Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
+            await ctx.RespondAsync(Utils.AliveToS(PlayerState.Dead) + " players are: " +
+                                   Utils.DisplayPlayerList(CurrentGame.GetDeadPlayers()));
         }
         
         internal string? CheckCommandContext(CommandContext? ctx,
@@ -240,6 +250,13 @@ namespace WerefoxBot
             {
                 return prefix + $"during the {Utils.StepToS(step.Value)}. (It's now the {Utils.StepToS(CurrentGame.Step)})";
             }
+
+            return CheckPlayerStatus(ctx, onlyAlivePlayer, onlyCard, prefix);
+        }
+
+        private string? CheckPlayerStatus(CommandContext? ctx, PlayerState? onlyAlivePlayer, Card? onlyCard,
+            string prefix)
+        {
             var currentPlayer = CurrentGame.GetById(ctx.User.Id);
             if (currentPlayer == null)
             {
@@ -255,6 +272,6 @@ namespace WerefoxBot
             }
             return null;
         }
-
+        
     }
 }

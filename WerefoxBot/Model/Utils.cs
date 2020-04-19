@@ -9,7 +9,7 @@ namespace WerefoxBot.Model
             switch (card)
             {
                 case Card.Werefox:
-                    return "werefox :werefox:";
+                    return "werefox :fox:";
                 case Card.VillagePeople:
                     return "village people :man_farmer:";
                 case Card.LittleGirl:

@@ -48,7 +48,7 @@ namespace WerefoxBot
         private bool GameInCreation = false;
         
         [Command("start"), Description("Start a new game.")]
-        public async Task Start(CommandContext ctx, [Description("How long should the poll last.")] TimeSpan duration)
+        public async Task Start(CommandContext ctx, [Description("How long should last the poll.")] TimeSpan duration)
         {
             if (ctx == null)
             {
@@ -96,7 +96,7 @@ namespace WerefoxBot
             await Service.Start(ctx, discordUsers);
         }
 
-        [Command("stop"), Description("stop a new game.")]
+        [Command("stop"), Description("stop the game.")]
         public async Task Stop(CommandContext ctx)
         {
             var errorMessage = Service.CheckCommandContext(ctx, false, null, null, null);
@@ -124,6 +124,18 @@ namespace WerefoxBot
             {
                 await Service.Reveal(ctx);
             }
+        }
+        
+        [Command("whoIsWho"), Description("Reveal the card of every body. (dead player only)")]
+        public async Task WhoIsWho(CommandContext ctx)
+        {
+            var errorMessage = Service.CheckCommandContext(ctx, true, null, PlayerState.Dead, null);
+            if (errorMessage != null)
+            {
+                ctx.RespondAsync(errorMessage);
+                return;
+            }
+            await Service.WhoIsWho(ctx);
         }
         
         [Command("status"), Description("Status of the current game.")]
