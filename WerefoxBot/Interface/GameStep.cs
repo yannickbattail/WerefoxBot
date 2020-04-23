@@ -1,4 +1,4 @@
-﻿namespace WerefoxBot.Model
+﻿namespace WerefoxBot.Interface
 {
     internal enum GameStep
     {

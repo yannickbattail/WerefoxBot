@@ -7,6 +7,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
+using WerefoxBot.Interface;
 using WerefoxBot.Model;
 
 namespace WerefoxBot
@@ -29,7 +30,7 @@ namespace WerefoxBot
                 return;
             }
 
-            await Service.sacrifice(ctx, playerToSacrifice);
+            await Service.Sacrifice(ctx, playerToSacrifice);
         }
 
         [Command("eat"), Description("Eat a player")]
@@ -88,7 +89,8 @@ namespace WerefoxBot
                 .SelectMany(r => r.Users)
                 .Where(u => !u.IsBot);
             GameInCreation = false;
-            await Service.Start(ctx, discordUsers);
+            var players = discordUsers.Select(u => new Player(ctx.Guild.Members[u.Id]));
+            await Service.Start(ctx, players);
         }
 
         [Command("stop"), Description("stop the game.")]

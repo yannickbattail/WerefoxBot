@@ -349,14 +349,16 @@
         <e p="config.example.json" t="Include" />
         <e p="config.json" t="Include" />
         <e p="ConfigJson.cs" t="Include" />
-        <e p="ExampleInteractiveCommands.cs" t="Include" />
-        <e p="Model" t="Include">
+        <e p="Interface" t="Include">
           <e p="Card.cs" t="Include" />
-          <e p="Game.cs" t="Include" />
           <e p="GameStep.cs" t="Include" />
-          <e p="Player.cs" t="Include" />
+          <e p="IGame.cs" t="Include" />
+          <e p="IPlayer.cs" t="Include" />
           <e p="PlayerState.cs" t="Include" />
-          <e p="Utils.cs" t="Include" />
+        </e>
+        <e p="Model" t="Include">
+          <e p="Game.cs" t="Include" />
+          <e p="Player.cs" t="Include" />
         </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
@@ -366,6 +368,7 @@
           </e>
         </e>
         <e p="Program.cs" t="Include" />
+        <e p="Utils.cs" t="Include" />
         <e p="WerefoxBot.csproj" t="IncludeRecursive" />
         <e p="WerefoxService.cs" t="Include" />
       </e>

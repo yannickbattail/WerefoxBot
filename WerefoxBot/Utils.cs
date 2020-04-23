@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using WerefoxBot.Interface;
 
-namespace WerefoxBot.Model
+namespace WerefoxBot
 {
     internal static class Utils {
         public static string CardToS(Card card)
@@ -46,9 +47,9 @@ namespace WerefoxBot.Model
             };
         }
         
-        public static string DisplayPlayerList(IEnumerable<Player> players)
+        public static string DisplayPlayerList(IEnumerable<IPlayer> players)
         {
-            return string.Join(", ", players.Select(p => p.User.Mention));
+            return string.Join(", ", players.Select(p => p.GetMention()));
         }
     }
 }
