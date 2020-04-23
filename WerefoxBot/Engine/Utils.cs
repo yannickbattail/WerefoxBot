@@ -2,7 +2,7 @@
 using System.Linq;
 using WerefoxBot.Interface;
 
-namespace WerefoxBot
+namespace WerefoxBot.Engine
 {
     internal static class Utils {
         public static string CardToS(Card card)

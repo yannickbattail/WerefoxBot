@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using WerefoxBot.Interface;
 
-namespace WerefoxBot.Model
+namespace WerefoxBot.Implementation
 {
     internal class Game : IGame
     {
