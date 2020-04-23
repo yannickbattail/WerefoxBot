@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using WerefoxBot.Interfaces;
+using Werefox.Implementations;
+using Werefox.Interfaces;
 
 namespace WerefoxBot.Implementations
 {

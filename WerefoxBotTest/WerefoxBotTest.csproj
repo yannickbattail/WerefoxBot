@@ -4,6 +4,14 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
 
         <IsPackable>false</IsPackable>
+
+        <AssemblyName>WerefoxTest</AssemblyName>
+
+        <RootNamespace>WerefoxTest</RootNamespace>
+
+        <Nullable>enable</Nullable>
+
+        <Company>WerefoxBot</Company>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\WerefoxBot\WerefoxBot.csproj" />
+      <ProjectReference Include="..\Werefox\Werefox.csproj" />
     </ItemGroup>
 
 </Project>

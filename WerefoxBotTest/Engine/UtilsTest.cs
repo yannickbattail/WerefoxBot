@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
-using WerefoxBot.Engine;
-using WerefoxBot.Interfaces;
+using Werefox.Engine;
+using Werefox.Interfaces;
 using Xunit;
 
-namespace WerefoxBotTest.Engine
+namespace WerefoxTest.Engine
 {
     public class UtilsTest
     {

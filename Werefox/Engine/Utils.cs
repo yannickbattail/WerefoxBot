@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using WerefoxBot.Interfaces;
+using Werefox.Interfaces;
 
-namespace WerefoxBot.Engine
+namespace Werefox.Engine
 {
     public static class Utils {
         public static string CardToS(Card card)

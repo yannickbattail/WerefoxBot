@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using Werefox.Implementations;
 
 namespace WerefoxBot.Implementations
 {

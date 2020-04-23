@@ -343,22 +343,16 @@
         </e>
       </e>
       <e p="packages" t="ExcludeRecursive" />
-      <e p="WerefoxBot" t="IncludeRecursive">
+      <e p="Werefox" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
-        <e p="CommandContextException.cs" t="Include" />
-        <e p="Commands.cs" t="Include" />
-        <e p="config.example.json" t="Include" />
-        <e p="config.json" t="Include" />
-        <e p="ConfigJson.cs" t="Include" />
         <e p="Engine" t="Include">
+          <e p="CommandContextException.cs" t="Include" />
           <e p="Utils.cs" t="Include" />
           <e p="WerefoxService.cs" t="Include" />
         </e>
         <e p="Implementations" t="Include">
           <e p="BaseGame.cs" t="Include" />
           <e p="BasePlayer.cs" t="Include" />
-          <e p="Game.cs" t="Include" />
-          <e p="Player.cs" t="Include" />
         </e>
         <e p="Interfaces" t="Include">
           <e p="Card.cs" t="Include" />
@@ -367,6 +361,25 @@
           <e p="IPlayer.cs" t="Include" />
           <e p="ISendMessage.cs" t="Include" />
           <e p="PlayerState.cs" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.1" t="Include">
+              <e p="Werefox.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Werefox.csproj" t="IncludeRecursive" />
+      </e>
+      <e p="WerefoxBot" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Commands.cs" t="Include" />
+        <e p="config.example.json" t="Include" />
+        <e p="config.json" t="Include" />
+        <e p="ConfigJson.cs" t="Include" />
+        <e p="Implementations" t="Include">
+          <e p="Game.cs" t="Include" />
+          <e p="Player.cs" t="Include" />
         </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">

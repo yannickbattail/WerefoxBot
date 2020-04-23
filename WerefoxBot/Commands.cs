@@ -7,7 +7,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
-using WerefoxBot.Engine;
+using Werefox.Engine;
 using WerefoxBot.Implementations;
 
 namespace WerefoxBot
@@ -17,7 +17,12 @@ namespace WerefoxBot
     [SuppressMessage("ReSharper", "CA2007")]
     public class Commands : BaseCommandModule
     {
-        private WerefoxService Service { get; set; } = new WerefoxService();
+        private WerefoxService Service { get; set; }
+
+        public Commands()
+        {
+            Service = new WerefoxService(ConfigJson.Load().Result.CommandPrefix);
+        }
         
         private bool GameInCreation = false;
         
@@ -82,7 +87,6 @@ namespace WerefoxBot
         public async Task Sacrifice (CommandContext ctx, [Description("player to sacrifice")]
             string playerToSacrifice)
         {
-            //CheckCommandContext(ctx, false, GameStep.Day, PlayerState.Alive, null);
             try
             {
                 CheckContext(ctx, false);

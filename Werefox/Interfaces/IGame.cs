@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WerefoxBot.Interfaces
+namespace Werefox.Interfaces
 {
     public interface IGame : ISendMessage
     {

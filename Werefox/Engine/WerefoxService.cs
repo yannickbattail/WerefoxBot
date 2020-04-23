@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using WerefoxBot.Implementations;
-using WerefoxBot.Interfaces;
+using Werefox.Interfaces;
 
-namespace WerefoxBot.Engine
+namespace Werefox.Engine
 {
     [SuppressMessage("ReSharper", "CA2007")]
     [SuppressMessage("ReSharper", "CA1303")]
-    internal class WerefoxService
+    public class WerefoxService
     {
         private IGame? CurrentGame { get; set; }
         private readonly string CommandPrefix;
 
         public bool IsStated() => CurrentGame != null;
 
-        public async Task Start(ulong currentPlayerId, Game game)
+        public async Task Start(ulong currentPlayerId, IGame game)
         {
             CurrentGame = game;
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -89,9 +88,9 @@ namespace WerefoxBot.Engine
             }
         }
 
-        public WerefoxService()
+        public WerefoxService(string commandPrefix)
         {
-            CommandPrefix = ConfigJson.Load().Result.CommandPrefix;
+            CommandPrefix = commandPrefix;
         }
         
         public async Task Sacrifice(ulong currentPlayerId, string playerToSacrifice)

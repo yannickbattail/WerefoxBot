@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WerefoxBot.Interfaces;
+using Werefox.Interfaces;
 
-namespace WerefoxBot.Implementations
+namespace Werefox.Implementations
 {
     public abstract class BasePlayer : IPlayer
     {

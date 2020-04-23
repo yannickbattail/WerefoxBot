@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace WerefoxBot
+namespace Werefox.Engine
 {
-    class CommandContextException: Exception
+    public class CommandContextException: Exception
     {
         public CommandContextException(string message) : base(message)
         {

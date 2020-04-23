@@ -1,4 +1,4 @@
-﻿namespace WerefoxBot.Interfaces
+﻿namespace Werefox.Interfaces
 {
     public enum PlayerState
     {
