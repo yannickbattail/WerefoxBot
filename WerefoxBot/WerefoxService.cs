@@ -32,11 +32,7 @@ namespace WerefoxBot
 
         private async Task Sacrifice(CommandContext ctx, Player electedPlayer)
         {
-            electedPlayer.State = PlayerState.Dead;
-            await CurrentGame.Channel.SendMessageAsync(
-                $"{electedPlayer.User.Mention} has been sacrificed :dagger: . He was a {Utils.CardToS(electedPlayer.Card)}.");
-            await CurrentGame.Channel.SendMessageAsync("Remaining players: " +
-                                                       Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
+            Die(electedPlayer, "has been sacrificed :dagger:.");
             if (!await CheckWin())
             {
                 Night(ctx);
@@ -55,11 +51,7 @@ namespace WerefoxBot
 
         private async Task Eat(CommandContext ctx, Player electedPlayer)
         {
-            electedPlayer.State = PlayerState.Dead;
-            await CurrentGame.Channel.SendMessageAsync(
-                $"{electedPlayer.User.Mention} has been eaten by werefoxes :fox:. Yum yum :yum:. He was a {Utils.CardToS(electedPlayer.Card)}.");
-            await CurrentGame.Channel.SendMessageAsync("Remaining players: " +
-                                                       Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
+            Die(electedPlayer, "has been eaten by werefoxes :fox:. Yum yum :yum:.");
             if (!await CheckWin())
             {
                 await Day(ctx);
@@ -120,6 +112,15 @@ namespace WerefoxBot
             return playerEaten;
         }
 
+        private async Task Die(Player player, string message)
+        {
+            await CurrentGame.Channel.SendMessageAsync(
+                $"{player.User.Mention} {message} He was a {Utils.CardToS(player.Card)}.");
+            await CurrentGame.Channel.SendMessageAsync("Remaining players: " +
+                                                       Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
+            player.State = PlayerState.Dead;
+        }
+
         internal async Task Start(CommandContext ctx, IEnumerable<DiscordUser> users)
         {
             var players = users.Select(u => new Player(ctx.Guild.Members[u.Id])).ToList();
@@ -137,10 +138,9 @@ namespace WerefoxBot
         private async Task StartGame(CommandContext ctx)
         {
             await ctx.RespondAsync(":white_check_mark: Game started with players: " + Utils.DisplayPlayerList(CurrentGame.Players));
-            ShuffleWereFoxes();
+            ShufflePlayerCards();
             TellWereFox();
             Night(ctx);
-            //Day(ctx);
         }
         internal async Task Stop(CommandContext ctx)
         {
@@ -148,7 +148,7 @@ namespace WerefoxBot
             await ctx.RespondAsync(":stop_sign: Game Stopped.");
         }
         
-        public void ShuffleWereFoxes()
+        public void ShufflePlayerCards()
         {
             var indexWereFox = new Random().Next(CurrentGame.Players.Count);
             CurrentGame.Players[indexWereFox].Card = Card.Werefox;
@@ -188,6 +188,12 @@ namespace WerefoxBot
             }
         }
 
+        public async Task Leave(CommandContext ctx)
+        {
+            Die(GetCurrentPlayer(ctx), "has left the game :door:.");
+            CheckWin();
+        }
+        
         internal async Task Reveal(CommandContext ctx)
         {
             await ctx.RespondAsync($"REVELATION: {GetCurrentPlayer(ctx).User.Mention} is a {Utils.CardToS(GetCurrentPlayer(ctx).Card)}.");
@@ -272,6 +278,6 @@ namespace WerefoxBot
             }
             return null;
         }
-        
+
     }
 }

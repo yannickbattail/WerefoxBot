@@ -60,23 +60,18 @@ namespace WerefoxBot
                 await ctx.RespondAsync(prefix + "only in private chanel.");
                 return;
             }
-            
             if (GameInCreation)
             {
                 await ctx.RespondAsync(":warning: A game is already waiting for player. Join it!");
                 return;
             }
-            
             if (Service.IsStated())
             {
                 await ctx.RespondAsync($":no_entry: A game is already started. You can stop it with {ctx.Prefix}stop .");
                 return;
             }
-
             var emoji = DiscordEmoji.FromName(ctx.Client, ":+1:");
-            // first retrieve the interactivity module from the client
             var interactivity = ctx.Client.GetInteractivity();
-            // then let's present the poll
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = $"Start a game, who's in ? React {emoji} to join the game. ",
@@ -108,6 +103,18 @@ namespace WerefoxBot
             await Service.Stop(ctx);
         }
 
+        [Command("leave"), Description("Leave the game.")]
+        public async Task Leave(CommandContext ctx)
+        {
+            var errorMessage = Service.CheckCommandContext(ctx, false, null, null, null);
+            if (errorMessage != null)
+            {
+                ctx.RespondAsync(errorMessage);
+                return;
+            }
+            await Service.Leave(ctx);
+        }
+        
         [Command("reveal"), Description("Reveal your card.")]
         public async Task Reveal(CommandContext ctx)
         {
