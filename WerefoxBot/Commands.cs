@@ -8,7 +8,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using WerefoxBot.Engine;
-using WerefoxBot.Implementation;
+using WerefoxBot.Implementations;
 
 namespace WerefoxBot
 {

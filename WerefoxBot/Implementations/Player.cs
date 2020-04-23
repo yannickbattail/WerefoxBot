@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using WerefoxBot.Interface;
 
-namespace WerefoxBot.Implementation
+namespace WerefoxBot.Implementations
 {
-    internal class Player : IPlayer
+    internal class Player : BasePlayer
     {
         private readonly DiscordDmChannel dmChannel;
         private readonly DiscordMember user;
-        public IPlayer? Vote { get; set; }
-        public Card Card { get; set; } = Card.VillagePeople;
-        
-        public bool IsLover { get; set; } = false;
-        public PlayerState State { get; set; } = PlayerState.Alive;
 
         public Player(DiscordMember user)
         {
@@ -21,21 +15,21 @@ namespace WerefoxBot.Implementation
             dmChannel = user.CreateDmChannelAsync().Result;
         }
 
-        public async Task SendMessageAsync(string message)
+        public override async Task SendMessageAsync(string message)
         {
             await dmChannel.SendMessageAsync(message);
         }
 
-        public ulong GetId()
+        public override ulong GetId()
         {
             return user.Id;
         }
         
-        public String GetMention()
+        public override String GetMention()
         {
             return user.Mention;
         }
-        public String GetDisplayName()
+        public override String GetDisplayName()
         {
             return user.DisplayName;
         }

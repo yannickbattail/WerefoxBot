@@ -2,29 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
-using WerefoxBot.Interface;
+using WerefoxBot.Interfaces;
 
-namespace WerefoxBot.Implementation
+namespace WerefoxBot.Implementations
 {
-    internal class Game : IGame
+    public abstract class BaseGame : IGame
     {
-        private readonly DiscordChannel channel;
-        public IList<IPlayer> Players { get; set; } = new List<IPlayer>();
+        public IList<IPlayer> Players { get; set; }
 
         public GameStep Step { get; set; } = GameStep.Night;
 
-        public Game(DiscordChannel channel, IEnumerable<IPlayer> currentGamePlayers)
-        {
-            this.channel = channel;
-            Players = currentGamePlayers.ToList();
-        }
+        public abstract Task SendMessageAsync(string message);
 
-        public async Task SendMessageAsync(string message)
-        {
-            await channel.SendMessageAsync(message);
-        }
-        
         public IEnumerable<IPlayer> GetAlivePlayers()
         {
             return Players.Where(p => p.State == PlayerState.Alive);

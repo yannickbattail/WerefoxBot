@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
 using WerefoxBot.Engine;
-using WerefoxBot.Interface;
+using WerefoxBot.Interfaces;
 using Xunit;
 
 namespace WerefoxBotTest.Engine

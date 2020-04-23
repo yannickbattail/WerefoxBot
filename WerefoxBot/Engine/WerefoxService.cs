@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using WerefoxBot.Implementation;
-using WerefoxBot.Interface;
+using WerefoxBot.Implementations;
+using WerefoxBot.Interfaces;
 
 namespace WerefoxBot.Engine
 {
@@ -12,7 +12,7 @@ namespace WerefoxBot.Engine
     [SuppressMessage("ReSharper", "CA1303")]
     internal class WerefoxService
     {
-        private Game? CurrentGame { get; set; }
+        private IGame? CurrentGame { get; set; }
         private readonly string CommandPrefix;
 
         public bool IsStated() => CurrentGame != null;

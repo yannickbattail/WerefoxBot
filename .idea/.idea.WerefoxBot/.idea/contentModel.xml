@@ -354,11 +354,13 @@
           <e p="Utils.cs" t="Include" />
           <e p="WerefoxService.cs" t="Include" />
         </e>
-        <e p="Implementation" t="Include">
+        <e p="Implementations" t="Include">
+          <e p="BaseGame.cs" t="Include" />
+          <e p="BasePlayer.cs" t="Include" />
           <e p="Game.cs" t="Include" />
           <e p="Player.cs" t="Include" />
         </e>
-        <e p="Interface" t="Include">
+        <e p="Interfaces" t="Include">
           <e p="Card.cs" t="Include" />
           <e p="GameStep.cs" t="Include" />
           <e p="IGame.cs" t="Include" />

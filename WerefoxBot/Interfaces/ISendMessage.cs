@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace WerefoxBot.Interface
+namespace WerefoxBot.Interfaces
 {
     public interface ISendMessage
     {

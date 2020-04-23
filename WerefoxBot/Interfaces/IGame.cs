@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace WerefoxBot.Interface
+namespace WerefoxBot.Interfaces
 {
     public interface IGame : ISendMessage
     {
         IList<IPlayer> Players { get; set; }
         GameStep Step { get; set; }
-        Task SendMessageAsync(string message);
         IEnumerable<IPlayer> GetAlivePlayers();
         IEnumerable<IPlayer> GetDeadPlayers();
         IEnumerable<IPlayer> GetAliveWerefoxes();
