@@ -18,11 +18,12 @@ namespace Werefox.Implementations
         {
             return Players.Where(p => p.State == PlayerState.Alive);
         }
+
         public IEnumerable<IPlayer> GetDeadPlayers()
         {
             return Players.Where(p => p.State == PlayerState.Dead);
         }
-        
+
         public IEnumerable<IPlayer> GetAliveWerefoxes()
         {
             return GetAlivePlayers().Where(p => p.Card == Card.Werefox);
@@ -31,10 +32,12 @@ namespace Werefox.Implementations
 
         public IPlayer? GetByName(string? displayName)
         {
+            displayName ??= "";
             displayName = displayName.Replace("@", "", StringComparison.InvariantCultureIgnoreCase);
-            return Players.FirstOrDefault(p => displayName.Equals(p.GetDisplayName(), StringComparison.InvariantCultureIgnoreCase));
+            return Players.FirstOrDefault(p =>
+                displayName.Equals(p.GetDisplayName(), StringComparison.InvariantCultureIgnoreCase));
         }
-        
+
         public IPlayer? GetById(ulong? id)
         {
             return Players.FirstOrDefault(p => p.GetId() == id);

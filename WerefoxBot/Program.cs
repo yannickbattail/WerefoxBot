@@ -39,7 +39,7 @@ namespace WerefoxBot
             };
 
             // then we want to instantiate our client
-            this.Client = new DiscordClient(cfg);
+            Client = new DiscordClient(cfg);
 
             // If you are on Windows 7 and using .NETFX, install 
             // DSharpPlus.WebSocket.WebSocket4Net from NuGet,
@@ -52,7 +52,7 @@ namespace WerefoxBot
             // add appropriate usings, and uncomment the following
             // line
             //this.Client.SetWebSocketClient<WebSocket4NetCoreClient>();
-            
+
             // If you are using Mono, install 
             // DSharpPlus.WebSocket.WebSocketSharp from NuGet,
             // add appropriate usings, and uncomment the following
@@ -65,12 +65,12 @@ namespace WerefoxBot
 
             // next, let's hook some events, so we know
             // what's going on
-            this.Client.Ready += this.Client_Ready;
-            this.Client.GuildAvailable += this.Client_GuildAvailable;
-            this.Client.ClientErrored += this.Client_ClientError;
+            Client.Ready += Client_Ready;
+            Client.GuildAvailable += Client_GuildAvailable;
+            Client.ClientErrored += Client_ClientError;
 
             // let's enable interactivity, and set default options
-            this.Client.UseInteractivity(new InteractivityConfiguration
+            Client.UseInteractivity(new InteractivityConfiguration
             {
                 // default pagination behaviour to just ignore the reactions
                 PaginationBehaviour = PaginationBehaviour.Ignore,
@@ -83,7 +83,7 @@ namespace WerefoxBot
             var ccfg = new CommandsNextConfiguration
             {
                 // let's use the string prefix defined in config.json
-                StringPrefixes = new List<string>(){configJson.CommandPrefix},
+                StringPrefixes = new List<string>() {configJson.CommandPrefix},
                 // enable responding in direct messages
                 EnableDms = true,
 
@@ -92,18 +92,18 @@ namespace WerefoxBot
             };
 
             // and hook them up
-            this.Commands = this.Client.UseCommandsNext(ccfg);
+            Commands = Client.UseCommandsNext(ccfg);
 
             // let's hook some command events, so we know what's 
             // going on
-            this.Commands.CommandExecuted += this.Commands_CommandExecuted;
-            this.Commands.CommandErrored += this.Commands_CommandErrored;
+            Commands.CommandExecuted += Commands_CommandExecuted;
+            Commands.CommandErrored += Commands_CommandErrored;
 
             // up next, let's register our commands
-            this.Commands.RegisterCommands<BotCommands>();
+            Commands.RegisterCommands<BotCommands>();
 
             // finally, let's connect and log in
-            await this.Client.ConnectAsync();
+            await Client.ConnectAsync();
 
             // when the bot is running, try doing <prefix>help
             // to see the list of registered commands, and 
@@ -113,11 +113,12 @@ namespace WerefoxBot
             // and this is to prevent premature quitting
             await Task.Delay(-1);
         }
-        
+
         private Task Client_Ready(ReadyEventArgs e)
         {
             // let's log the fact that this event occured
-            e.Client.DebugLogger.LogMessage(LogLevel.Info, "ExampleBot", "Client is ready to process events.", DateTime.Now);
+            e.Client.DebugLogger.LogMessage(LogLevel.Info, "ExampleBot", "Client is ready to process events.",
+                DateTime.Now);
 
             // since this method is not async, let's return
             // a completed task, so that no additional work
@@ -129,7 +130,8 @@ namespace WerefoxBot
         {
             // let's log the name of the guild that was just
             // sent to our client
-            e.Client.DebugLogger.LogMessage(LogLevel.Info, "ExampleBot", $"Guild available: {e.Guild.Name}", DateTime.Now);
+            e.Client.DebugLogger.LogMessage(LogLevel.Info, "ExampleBot", $"Guild available: {e.Guild.Name}",
+                DateTime.Now);
 
             // since this method is not async, let's return
             // a completed task, so that no additional work
@@ -141,7 +143,8 @@ namespace WerefoxBot
         {
             // let's log the details of the error that just 
             // occured in our client
-            e.Client.DebugLogger.LogMessage(LogLevel.Error, "ExampleBot", $"Exception occured: {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+            e.Client.DebugLogger.LogMessage(LogLevel.Error, "ExampleBot",
+                $"Exception occured: {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
 
             // since this method is not async, let's return
             // a completed task, so that no additional work
@@ -152,7 +155,8 @@ namespace WerefoxBot
         private Task Commands_CommandExecuted(CommandExecutionEventArgs e)
         {
             // let's log the name of the command and user
-            e.Context.Client.DebugLogger.LogMessage(LogLevel.Info, "ExampleBot", $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
+            e.Context.Client.DebugLogger.LogMessage(LogLevel.Info, "ExampleBot",
+                $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
 
             // since this method is not async, let's return
             // a completed task, so that no additional work
@@ -163,7 +167,9 @@ namespace WerefoxBot
         private async Task Commands_CommandErrored(CommandErrorEventArgs e)
         {
             // let's log the error details
-            e.Context.Client.DebugLogger.LogMessage(LogLevel.Error, "ExampleBot", $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
+            e.Context.Client.DebugLogger.LogMessage(LogLevel.Error, "ExampleBot",
+                $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}",
+                DateTime.Now);
 
             // let's check if the error is a result of lack
             // of required permissions

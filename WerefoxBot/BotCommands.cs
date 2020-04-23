@@ -23,11 +23,13 @@ namespace WerefoxBot
         {
             Service = new WerefoxService(ConfigJson.Load().Result.CommandPrefix);
         }
-        
+
         private bool GameInCreation = false;
-        
-        [Command("start"), Description("Start a new game.")]
-        public async Task Start(CommandContext ctx, [Description("How long should last the poll.")] TimeSpan duration)
+
+        [Command("start")]
+        [Description("Start a new game.")]
+        public async Task Start(CommandContext ctx, [Description("How long should last the poll.")]
+            TimeSpan duration)
         {
             try
             {
@@ -36,12 +38,15 @@ namespace WerefoxBot
                     await ctx.RespondAsync(":warning: A game is already waiting for player. Join it!");
                     return;
                 }
+
                 CheckContext(ctx, false);
                 if (Service.IsStated())
                 {
-                    await ctx.RespondAsync($":no_entry: A game is already started. You can stop it with {ctx.Prefix}stop .");
+                    await ctx.RespondAsync(
+                        $":no_entry: A game is already started. You can stop it with {ctx.Prefix}stop .");
                     return;
                 }
+
                 var emoji = DiscordEmoji.FromName(ctx.Client, ":+1:");
                 var interactivity = ctx.Client.GetInteractivity();
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
@@ -70,7 +75,8 @@ namespace WerefoxBot
             }
         }
 
-        [Command("stop"), Description("stop the game.")]
+        [Command("stop")]
+        [Description("stop the game.")]
         public async Task Stop(CommandContext ctx)
         {
             try
@@ -83,9 +89,10 @@ namespace WerefoxBot
                 await ctx.RespondAsync(e.Message);
             }
         }
-        [Command("sacrifice"), Description("Vote for a player to sacrifice")]
-        public async Task Sacrifice (CommandContext ctx, [Description("player to sacrifice")]
-            string playerToSacrifice)
+
+        [Command("sacrifice")]
+        [Description("Vote for a player to sacrifice")]
+        public async Task Sacrifice(CommandContext ctx, [Description("player to sacrifice")] string playerToSacrifice)
         {
             try
             {
@@ -98,7 +105,8 @@ namespace WerefoxBot
             }
         }
 
-        [Command("eat"), Description("Eat a player")]
+        [Command("eat")]
+        [Description("Eat a player")]
         public async Task Eat(CommandContext ctx, [Description("Player you want to eat")]
             string playerToEat)
         {
@@ -113,7 +121,8 @@ namespace WerefoxBot
             }
         }
 
-        [Command("leave"), Description("Leave the game.")]
+        [Command("leave")]
+        [Description("Leave the game.")]
         public async Task Leave(CommandContext ctx)
         {
             try
@@ -126,8 +135,9 @@ namespace WerefoxBot
                 await ctx.RespondAsync(e.Message);
             }
         }
-        
-        [Command("reveal"), Description("Reveal your card.")]
+
+        [Command("reveal")]
+        [Description("Reveal your card.")]
         public async Task Reveal(CommandContext ctx)
         {
             try
@@ -138,17 +148,16 @@ namespace WerefoxBot
                 var msg = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id,
                     TimeSpan.FromSeconds(60));
                 if (!msg.TimedOut && msg.Result.Content.Equals("yes", StringComparison.InvariantCultureIgnoreCase))
-                {
                     await Service.Reveal(ctx.User.Id);
-                }
             }
             catch (CommandContextException e)
             {
                 await ctx.RespondAsync(e.Message);
             }
         }
-        
-        [Command("whoIsWho"), Description("Reveal the card of every body. (dead player only)")]
+
+        [Command("whoIsWho")]
+        [Description("Reveal the card of every body. (dead player only)")]
         public async Task WhoIsWho(CommandContext ctx)
         {
             try
@@ -161,8 +170,9 @@ namespace WerefoxBot
                 await ctx.RespondAsync(e.Message);
             }
         }
-        
-        [Command("status"), Description("Status of the current game.")]
+
+        [Command("status")]
+        [Description("Status of the current game.")]
         public async Task Status(CommandContext ctx)
         {
             try
@@ -178,21 +188,16 @@ namespace WerefoxBot
 
         private void CheckContext(CommandContext ctx, bool? needPrivateChannel)
         {
-            if (ctx == null)
-            {
-                throw new ArgumentException("missing parameter", nameof(ctx));
-            }
+            if (ctx == null) throw new ArgumentException("missing parameter", nameof(ctx));
+
             var prefix = $":no_entry: The command {ctx.Prefix}{ctx.Command.Name} must be use ";
             if (needPrivateChannel != null)
             {
                 if (needPrivateChannel.Value && ctx.Channel.Type != ChannelType.Private)
-                {
                     throw new CommandContextException(prefix + "only in private chanel.");
-                }
+
                 if (!needPrivateChannel.Value && ctx.Channel.Type == ChannelType.Private)
-                {
                     throw new CommandContextException(prefix + "only in public chanel.");
-                }
             }
         }
     }

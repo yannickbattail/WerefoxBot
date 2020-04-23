@@ -9,7 +9,7 @@ namespace Werefox.Interfaces
         bool IsLover { get; set; }
         PlayerState State { get; set; }
         ulong GetId();
-        String GetMention();
-        String GetDisplayName();
+        string GetMention();
+        string GetDisplayName();
     }
 }

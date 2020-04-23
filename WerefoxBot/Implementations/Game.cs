@@ -10,7 +10,7 @@ namespace WerefoxBot.Implementations
     internal class Game : BaseGame
     {
         private readonly DiscordChannel channel;
-        
+
         public Game(DiscordChannel channel, IEnumerable<IPlayer> currentGamePlayers)
         {
             this.channel = channel;

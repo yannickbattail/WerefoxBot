@@ -4,7 +4,8 @@ using Werefox.Interfaces;
 
 namespace Werefox.Engine
 {
-    public static class Utils {
+    public static class Utils
+    {
         public static string CardToS(Card card)
         {
             return card switch
@@ -38,7 +39,7 @@ namespace Werefox.Engine
             {
                 GameStep.ThiefStep => "thief step :supervillain:",
                 GameStep.CupidStep => "cupid/lover Step :angel:",
-                
+
                 GameStep.SeerStep => "seer :crystal_ball:",
                 GameStep.Night => "night :crescent_moon:",
                 GameStep.WitchStep => "witch step :woman_mage:",
@@ -46,7 +47,7 @@ namespace Werefox.Engine
                 _ => ":x: UNKNOWN GameStep"
             };
         }
-        
+
         public static string DisplayPlayerList(IEnumerable<IPlayer> players)
         {
             return string.Join(", ", players.Select(p => p.GetMention()));

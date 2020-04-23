@@ -4,10 +4,10 @@
     {
         ThiefStep,
         CupidStep,
-        
+
         SeerStep,
         Night,
         WitchStep,
-        Day,
+        Day
     }
 }

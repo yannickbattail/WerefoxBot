@@ -9,6 +9,6 @@
         Thief,
         Hunter,
         Cupid,
-        Witch,
+        Witch
     }
 }

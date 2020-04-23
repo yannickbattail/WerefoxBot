@@ -25,15 +25,15 @@ namespace WerefoxBot.Implementations
         {
             return user.Id;
         }
-        
-        public override String GetMention()
+
+        public override string GetMention()
         {
             return user.Mention;
         }
-        public override String GetDisplayName()
+
+        public override string GetDisplayName()
         {
             return user.DisplayName;
         }
-
     }
 }

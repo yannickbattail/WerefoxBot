@@ -8,7 +8,7 @@ namespace Werefox.Implementations
     {
         public IPlayer? Vote { get; set; }
         public Card Card { get; set; } = Card.VillagePeople;
-        
+
         public bool IsLover { get; set; } = false;
         public PlayerState State { get; set; } = PlayerState.Alive;
 
@@ -16,9 +16,8 @@ namespace Werefox.Implementations
 
         public abstract ulong GetId();
 
-        public abstract String GetMention();
+        public abstract string GetMention();
 
-        public abstract String GetDisplayName();
-
+        public abstract string GetDisplayName();
     }
 }
