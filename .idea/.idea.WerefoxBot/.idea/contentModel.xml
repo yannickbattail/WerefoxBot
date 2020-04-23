@@ -85,6 +85,7 @@
             <e p="SystemChannelFlags.cs" t="Include" />
             <e p="TargetUserType.cs" t="Include" />
             <e p="TokenType.cs" t="Include" />
+            <e p="UserFlags.cs" t="Include" />
           </e>
           <e p="EventArgs" t="Include">
             <e p="ChannelCreateEventArgs.cs" t="Include" />
