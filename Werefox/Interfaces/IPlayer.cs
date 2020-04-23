@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Werefox.Interfaces
+﻿namespace Werefox.Interfaces
 {
     public interface IPlayer : ISendMessage
     {

@@ -83,7 +83,7 @@ namespace WerefoxBot
             var ccfg = new CommandsNextConfiguration
             {
                 // let's use the string prefix defined in config.json
-                StringPrefixes = new List<string>() {configJson.CommandPrefix},
+                StringPrefixes = new List<string> {configJson.CommandPrefix},
                 // enable responding in direct messages
                 EnableDms = true,
 

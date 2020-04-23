@@ -139,7 +139,7 @@ namespace Werefox.Engine
             var voteList = votes.Select(
                 v => "- " + v.Key.GetMention() + " " + v.Count() + " votes"
             );
-            CurrentGame.SendMessageAsync($"Result of the vote: \r\n"
+            CurrentGame.SendMessageAsync("Result of the vote: \r\n"
                                          + string.Join("\r\n", voteList));
             var playerEaten = votes.First().Key;
             foreach (var p in CurrentGame.Players) p.Vote = null;
@@ -218,7 +218,7 @@ namespace Werefox.Engine
             var statuses = CurrentGame.Players.Select(
                 p => $"- {p.GetMention()} is {Utils.AliveToS(p.State)} and is a  {Utils.CardToS(p.Card)}."
             );
-            await currentPlayer.SendMessageAsync($"Result of the vote: \r\n" + string.Join("\r\n", statuses));
+            await currentPlayer.SendMessageAsync("Result of the vote: \r\n" + string.Join("\r\n", statuses));
         }
 
         public async Task Status(ulong currentPlayerId)
