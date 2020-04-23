@@ -2,7 +2,7 @@
 
 namespace WerefoxBot.Interface
 {
-    internal interface ISendMessage
+    public interface ISendMessage
     {
         Task SendMessageAsync(string message);
     }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace WerefoxBot.Interface
 {
-    internal interface IPlayer : ISendMessage
+    public interface IPlayer : ISendMessage
     {
         IPlayer? Vote { get; set; }
         Card Card { get; set; }

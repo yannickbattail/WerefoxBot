@@ -1,6 +1,6 @@
 ﻿namespace WerefoxBot.Interface
 {
-    internal enum GameStep
+    public enum GameStep
     {
         ThiefStep,
         CupidStep,

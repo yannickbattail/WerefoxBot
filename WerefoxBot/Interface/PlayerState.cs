@@ -1,6 +1,6 @@
 ﻿namespace WerefoxBot.Interface
 {
-    internal enum PlayerState
+    public enum PlayerState
     {
         Alive,
         Dead,

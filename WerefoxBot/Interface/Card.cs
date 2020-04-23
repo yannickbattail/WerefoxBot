@@ -1,6 +1,6 @@
 ﻿namespace WerefoxBot.Interface
 {
-    internal enum Card
+    public enum Card
     {
         VillagePeople,
         Werefox,

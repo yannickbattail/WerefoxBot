@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace WerefoxBot.Interface
 {
-    internal interface IGame : ISendMessage
+    public interface IGame : ISendMessage
     {
         IList<IPlayer> Players { get; set; }
         GameStep Step { get; set; }

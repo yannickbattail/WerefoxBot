@@ -4,7 +4,7 @@ using WerefoxBot.Interface;
 
 namespace WerefoxBot.Engine
 {
-    internal static class Utils {
+    public static class Utils {
         public static string CardToS(Card card)
         {
             return card switch
