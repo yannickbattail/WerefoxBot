@@ -2,7 +2,12 @@
 {
     internal enum GameStep
     {
+        ThiefStep,
+        CupidStep,
+        
+        SeerStep,
+        Night,
+        WitchStep,
         Day,
-        Night
     }
 }

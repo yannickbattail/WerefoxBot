@@ -8,6 +8,8 @@ namespace WerefoxBot.Model
         public DiscordMember User { get; private set; }
         public Player? Vote { get; set; }
         public Card Card { get; set; } = Card.VillagePeople;
+        
+        public bool IsLover { get; set; } = false;
         public bool IsWerefox() => Card == Card.Werefox;
         public PlayerState State { get; set; } = PlayerState.Alive;
         

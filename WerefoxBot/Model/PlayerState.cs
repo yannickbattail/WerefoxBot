@@ -3,6 +3,7 @@
     internal enum PlayerState
     {
         Alive,
-        Dead
+        Dead,
+        SchrödingersCat
     }
 }

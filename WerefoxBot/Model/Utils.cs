@@ -3,46 +3,47 @@ using System.Linq;
 
 namespace WerefoxBot.Model
 {
-    internal class Utils {
+    internal static class Utils {
         public static string CardToS(Card card)
         {
-            switch (card)
+            return card switch
             {
-                case Card.Werefox:
-                    return "werefox :fox:";
-                case Card.VillagePeople:
-                    return "village people :man_farmer:";
-                case Card.LittleGirl:
-                    return "LittleGirl :girl:";
-                default:
-                    return ":x: UNKNOWN Card";
-            }
+                Card.Werefox => "werefox :fox:",
+                Card.VillagePeople => "village people :man_farmer:",
+                Card.LittleGirl => "littleGirl :girl:",
+                Card.Seer => "seer :crystal_ball:",
+                Card.Thief => "thief :supervillain:",
+                Card.Hunter => "hunter :gun:",
+                Card.Cupid => "Cupid :angel:",
+                Card.Witch => "witch :woman_mage:",
+                _ => ":x: UNKNOWN Card"
+            };
         }
 
         public static string AliveToS(PlayerState playerState)
         {
-            switch (playerState)
+            return playerState switch
             {
-                case PlayerState.Alive:
-                    return "alive :star_struck:";
-                case PlayerState.Dead:
-                    return "dead :skull:";
-                default:
-                    return ":x: UNKNOWN PlayerStep";
-            }
+                PlayerState.Alive => "alive :star_struck:",
+                PlayerState.Dead => "dead :skull:",
+                PlayerState.SchrödingersCat => "Schrödinger's cat :scream_cat:",
+                _ => ":x: UNKNOWN PlayerStep"
+            };
         }
 
         public static string StepToS(GameStep step)
         {
-            switch (step)
+            return step switch
             {
-                case GameStep.Day:
-                    return "day :sunny:";
-                case GameStep.Night:
-                    return "night :crescent_moon:";
-                default:
-                    return ":x: UNKNOWN GameStep";
-            }
+                GameStep.ThiefStep => "thief step :supervillain:",
+                GameStep.CupidStep => "cupid/lover Step :angel:",
+                
+                GameStep.SeerStep => "seer :crystal_ball:",
+                GameStep.Night => "night :crescent_moon:",
+                GameStep.WitchStep => "witch step :woman_mage:",
+                GameStep.Day => "day :sunny:",
+                _ => ":x: UNKNOWN GameStep"
+            };
         }
         
         public static string DisplayPlayerList(IEnumerable<Player> players)

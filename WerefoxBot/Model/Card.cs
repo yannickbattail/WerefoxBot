@@ -4,6 +4,11 @@
     {
         VillagePeople,
         Werefox,
-        LittleGirl
+        LittleGirl,
+        Seer,
+        Thief,
+        Hunter,
+        Cupid,
+        Witch,
     }
 }
