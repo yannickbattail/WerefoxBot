@@ -23,27 +23,27 @@ namespace WerefoxBot
         public async Task Sacrifice (CommandContext ctx, [Description("player to sacrifice")]
             string playerToSacrifice)
         {
-            var errorMessage = Service.CheckCommandContext(ctx, false, GameStep.Day, PlayerState.Alive, null);
+            var errorMessage = CheckCommandContext(ctx, false, GameStep.Day, PlayerState.Alive, null);
             if (errorMessage != null)
             {
                 await ctx.RespondAsync(errorMessage);
                 return;
             }
 
-            await Service.Sacrifice(ctx, playerToSacrifice);
+            await Service.Sacrifice(ctx.User.Id, playerToSacrifice);
         }
 
         [Command("eat"), Description("Eat a player")]
         public async Task Eat(CommandContext ctx, [Description("Player you want to eat")]
             string playerToEat)
         {
-            var errorMessage = Service.CheckCommandContext(ctx, true, GameStep.Night, PlayerState.Alive, Card.Werefox);
+            var errorMessage = CheckCommandContext(ctx, true, GameStep.Night, PlayerState.Alive, Card.Werefox);
             if (errorMessage != null)
             {
                 ctx.RespondAsync(errorMessage);
                 return;
             }
-            await Service.Eat(ctx, playerToEat);
+            await Service.Eat(ctx.User.Id, playerToEat);
         }
 
         private bool GameInCreation = false;
@@ -90,37 +90,38 @@ namespace WerefoxBot
                 .Where(u => !u.IsBot);
             GameInCreation = false;
             var players = discordUsers.Select(u => new Player(ctx.Guild.Members[u.Id]));
-            await Service.Start(ctx, players);
+            var game = new Game(ctx.Channel, players);
+            await Service.Start(game);
         }
 
         [Command("stop"), Description("stop the game.")]
         public async Task Stop(CommandContext ctx)
         {
-            var errorMessage = Service.CheckCommandContext(ctx, false, null, null, null);
+            var errorMessage = CheckCommandContext(ctx, false, null, null, null);
             if (errorMessage != null)
             {
                 ctx.RespondAsync(errorMessage);
                 return;
             }
-            await Service.Stop(ctx);
+            await Service.Stop();
         }
 
         [Command("leave"), Description("Leave the game.")]
         public async Task Leave(CommandContext ctx)
         {
-            var errorMessage = Service.CheckCommandContext(ctx, false, null, null, null);
+            var errorMessage = CheckCommandContext(ctx, null, null, null, null);
             if (errorMessage != null)
             {
                 ctx.RespondAsync(errorMessage);
                 return;
             }
-            await Service.Leave(ctx);
+            await Service.Leave(ctx.User.Id);
         }
         
         [Command("reveal"), Description("Reveal your card.")]
         public async Task Reveal(CommandContext ctx)
         {
-            var errorMessage = Service.CheckCommandContext(ctx, false, null, null, null);
+            var errorMessage = CheckCommandContext(ctx, false, null, null, null);
             if (errorMessage != null)
             {
                 ctx.RespondAsync(errorMessage);
@@ -131,32 +132,55 @@ namespace WerefoxBot
             var msg = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromSeconds(60));
             if (!msg.TimedOut && msg.Result.Content.Equals("yes", StringComparison.InvariantCultureIgnoreCase))
             {
-                await Service.Reveal(ctx);
+                await Service.Reveal(ctx.User.Id);
             }
         }
         
         [Command("whoIsWho"), Description("Reveal the card of every body. (dead player only)")]
         public async Task WhoIsWho(CommandContext ctx)
         {
-            var errorMessage = Service.CheckCommandContext(ctx, true, null, PlayerState.Dead, null);
+            var errorMessage = CheckCommandContext(ctx, true, null, PlayerState.Dead, null);
             if (errorMessage != null)
             {
                 ctx.RespondAsync(errorMessage);
                 return;
             }
-            await Service.WhoIsWho(ctx);
+            await Service.WhoIsWho(ctx.User.Id);
         }
         
         [Command("status"), Description("Status of the current game.")]
         public async Task Status(CommandContext? ctx)
         {
-            var errorMessage = Service.CheckCommandContext(ctx, null, null, null, null);
+            var errorMessage = CheckCommandContext(ctx, null, null, null, null);
             if (errorMessage != null)
             {
                 ctx.RespondAsync(errorMessage);
                 return;
             }
-            await Service.Status(ctx);
+            await Service.Status();
+        }
+        
+        internal string? CheckCommandContext(CommandContext? ctx,
+            bool? needPrivateChannel, GameStep? step, PlayerState? onlyAlivePlayer, Card? onlyCard)
+        {
+            if (ctx == null)
+            {
+                throw new ArgumentException("missing parameter", nameof(ctx));
+            }
+            var prefix = $":no_entry: The command {ctx.Prefix}{ctx.Command.Name} must be use ";
+            if (needPrivateChannel != null)
+            {
+                if (needPrivateChannel.Value && ctx.Channel.Type != ChannelType.Private)
+                {
+                    return prefix + "only in private chanel.";
+                }
+                if (!needPrivateChannel.Value && ctx.Channel.Type == ChannelType.Private)
+                {
+                    return prefix + "only in public chanel.";
+                }
+            }
+            
+            return Service.CheckPlayerStatus(ctx.User.Id, step, onlyAlivePlayer, onlyCard, prefix);
         }
     }
 }

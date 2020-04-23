@@ -31,17 +31,10 @@ namespace WerefoxBot
         public async Task RunBotAsync()
         {
             // first, let's load our configuration file
-            var json = "";
-            using (var fs = File.OpenRead("config.json"))
-            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
-                json = await sr.ReadToEndAsync();
-
-            // next, let's load the values from that file
-            // to our client's configuration
-            var cfgjson = JsonConvert.DeserializeObject<ConfigJson>(json);
+            var configJson = await ConfigJson.Load();
             var cfg = new DiscordConfiguration
             {
-                Token = cfgjson.Token,
+                Token = configJson.Token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 LogLevel = LogLevel.Debug,
@@ -93,7 +86,7 @@ namespace WerefoxBot
             var ccfg = new CommandsNextConfiguration
             {
                 // let's use the string prefix defined in config.json
-                StringPrefixes = new List<string>(){cfgjson.CommandPrefix},
+                StringPrefixes = new List<string>(){configJson.CommandPrefix},
                 // enable responding in direct messages
                 EnableDms = true,
 
@@ -123,7 +116,7 @@ namespace WerefoxBot
             // and this is to prevent premature quitting
             await Task.Delay(-1);
         }
-
+        
         private Task Client_Ready(ReadyEventArgs e)
         {
             // let's log the fact that this event occured

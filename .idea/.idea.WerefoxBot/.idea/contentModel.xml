@@ -354,6 +354,7 @@
           <e p="GameStep.cs" t="Include" />
           <e p="IGame.cs" t="Include" />
           <e p="IPlayer.cs" t="Include" />
+          <e p="ISendMessage.cs" t="Include" />
           <e p="PlayerState.cs" t="Include" />
         </e>
         <e p="Model" t="Include">
