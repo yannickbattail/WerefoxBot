@@ -15,11 +15,11 @@ namespace WerefoxBot
     // note that in here we explicitly ask for duration. This is optional,
     // since we set the defaults.
     [SuppressMessage("ReSharper", "CA2007")]
-    public class Commands : BaseCommandModule
+    public class BotCommands : BaseCommandModule
     {
         private WerefoxService Service { get; set; }
 
-        public Commands()
+        public BotCommands()
         {
             Service = new WerefoxService(ConfigJson.Load().Result.CommandPrefix);
         }

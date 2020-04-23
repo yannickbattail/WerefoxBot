@@ -373,7 +373,7 @@
       </e>
       <e p="WerefoxBot" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
-        <e p="Commands.cs" t="Include" />
+        <e p="BotCommands.cs" t="Include" />
         <e p="config.example.json" t="Include" />
         <e p="config.json" t="Include" />
         <e p="ConfigJson.cs" t="Include" />

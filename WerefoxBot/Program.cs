@@ -52,7 +52,7 @@ namespace WerefoxBot
             // add appropriate usings, and uncomment the following
             // line
             //this.Client.SetWebSocketClient<WebSocket4NetCoreClient>();
-
+            
             // If you are using Mono, install 
             // DSharpPlus.WebSocket.WebSocketSharp from NuGet,
             // add appropriate usings, and uncomment the following
@@ -100,7 +100,7 @@ namespace WerefoxBot
             this.Commands.CommandErrored += this.Commands_CommandErrored;
 
             // up next, let's register our commands
-            this.Commands.RegisterCommands<Commands>();
+            this.Commands.RegisterCommands<BotCommands>();
 
             // finally, let's connect and log in
             await this.Client.ConnectAsync();
