@@ -10,7 +10,7 @@ namespace WerefoxTest.Engine
     public class UtilsTest
     {
         [Fact]
-        public void DisplayPlayerListEmpty()
+        public void DisplayPlayerListEmptyTest()
         {
             var players = new List<IPlayer>();
 
@@ -20,7 +20,7 @@ namespace WerefoxTest.Engine
         }
 
         [Fact]
-        public void DisplayPlayerList()
+        public void DisplayPlayerListTest()
         {
             var player1 = new Mock<IPlayer>();
             player1.Setup(x => x.GetMention()).Returns("player1");

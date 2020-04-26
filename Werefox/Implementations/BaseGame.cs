@@ -29,13 +29,13 @@ namespace Werefox.Implementations
             return GetAlivePlayers().Where(p => p.Card == Card.Werefox);
         }
 
-
         public IPlayer? GetByName(string? displayName)
         {
-            displayName ??= "";
-            displayName = displayName.Replace("@", "", StringComparison.InvariantCultureIgnoreCase);
-            return Players.FirstOrDefault(p =>
-                displayName.Equals(p.GetDisplayName(), StringComparison.InvariantCultureIgnoreCase));
+            displayName ??= string.Empty;
+            displayName = displayName.Replace("@", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            return Players.FirstOrDefault(
+                p => displayName.Equals(p.GetDisplayName(), StringComparison.InvariantCultureIgnoreCase)
+                );
         }
 
         public IPlayer? GetById(ulong? id)

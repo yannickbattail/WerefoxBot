@@ -40,7 +40,7 @@ namespace WerefoxBot
                 }
 
                 CheckContext(ctx, false);
-                if (Service.IsStated())
+                if (Service.IsStarted())
                 {
                     await ctx.RespondAsync(
                         $":no_entry: A game is already started. You can stop it with {ctx.Prefix}stop .");

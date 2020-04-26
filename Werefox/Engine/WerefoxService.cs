@@ -7,24 +7,44 @@ using Werefox.Interfaces;
 
 namespace Werefox.Engine
 {
+    /// <summary>
+    /// Werefox Service
+    /// </summary>
     [SuppressMessage("ReSharper", "CA2007")]
     [SuppressMessage("ReSharper", "CA1303")]
+    [SuppressMessage("ReSharper", "SA1028")]
+    [SuppressMessage("ReSharper", "SA1101")]
+    [SuppressMessage("ReSharper", "SA1202")]
     public class WerefoxService
     {
+        private IGame? CurrentGame { get; set; }
+        
         private readonly string commandPrefix;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WerefoxService"/> class.
+        /// </summary>
+        /// <param name="commandPrefix">commandPrefix.</param>
         public WerefoxService(string commandPrefix)
         {
             this.commandPrefix = commandPrefix;
         }
-
-        private IGame? CurrentGame { get; set; }
-
-        public bool IsStated()
+        
+        /// <summary>
+        /// Tells if game is started.
+        /// </summary>
+        /// <returns>true if game is started.</returns>
+        public bool IsStarted()
         {
             return CurrentGame != null;
         }
 
+        /// <summary>
+        /// start a new game
+        /// </summary>
+        /// <param name="currentPlayerId">current player ID.</param>
+        /// <param name="game">the new game.</param>
+        /// <returns>nothing.</returns>
         public async Task Start(ulong currentPlayerId, IGame game)
         {
             CurrentGame = game;
@@ -49,9 +69,11 @@ namespace Werefox.Engine
             await TellCardToPlayers();
             await Night();
         }
-
-
-        private void ShufflePlayerCards()
+        
+        /// <summary>
+        /// Shuffle cards for players.
+        /// </summary>
+        public void ShufflePlayerCards()
         {
             var indexWereFox = new Random().Next(CurrentGame.Players.Count);
             CurrentGame.Players[indexWereFox].Card = Card.Werefox;
@@ -60,13 +82,22 @@ namespace Werefox.Engine
         private async Task TellCardToPlayers()
         {
             foreach (var player in CurrentGame.GetAlivePlayers())
+            {
                 await player.SendMessageAsync($"You are a {Utils.CardToS(player.Card)}");
+            }
 
             foreach (var werefox in CurrentGame.GetAliveWerefoxes())
+            {
                 await werefox.SendMessageAsync("The other werefoxes :fox: are: " +
                                                Utils.DisplayPlayerList(CurrentGame.GetAliveWerefoxes()));
+            }
         }
 
+        /// <summary>
+        /// Stop the game.
+        /// </summary>
+        /// <param name="currentPlayerId">current player ID.</param>
+        /// <returns>nothing.</returns>
         public async Task Stop(ulong currentPlayerId)
         {
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -96,61 +127,97 @@ namespace Werefox.Engine
             await CurrentGame.SendMessageAsync(
                 "Werefoxes! It's time to decide who you will eat :yum:. Go to the direct message with WereFoxBot.");
             foreach (var werefox in CurrentGame.Players.Where(p => p.Card == Card.Werefox))
+            {
                 await werefox.SendMessageAsync(
                     $"Werefoxes! :fox: It's time to decide who you will eat :yum:. Send {commandPrefix}eat NICKNAME in direct message to WereFoxBot.");
+            }
         }
 
+        /// <summary>
+        /// Sacrifice a player
+        /// </summary>
+        /// <param name="currentPlayerId">current player ID.</param>
+        /// <param name="playerToSacrifice">player you vote to sacrifice.</param>
+        /// <returns>nothing.</returns>
         public async Task Sacrifice(ulong currentPlayerId, string playerToSacrifice)
         {
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
             CheckPlayerStatus(currentPlayer, GameStep.Day, PlayerState.Alive, null, "Sacrifice");
             currentPlayer.Vote = await CheckNickname(CurrentGame, playerToSacrifice, false);
 
-            var electedPlayer = GetVotes(CurrentGame.GetAlivePlayers());
-            if (electedPlayer != null) await SacrificePlayer(electedPlayer);
+            var electedPlayer = GetVotes(CurrentGame.GetAlivePlayers().ToList());
+            if (electedPlayer != null)
+            {
+                await SacrificePlayer(electedPlayer);
+            }
         }
 
         private async Task SacrificePlayer(IPlayer electedPlayer)
         {
             await Die(electedPlayer, "has been sacrificed :dagger:.");
-            if (!await CheckWin()) await Night();
+            if (!await CheckWin())
+            {
+                await Night();
+            }
         }
 
+        /// <summary>
+        /// Eat a player
+        /// </summary>
+        /// <param name="currentPlayerId">current player ID.</param>
+        /// <param name="playerToEat">player you vote to eat.</param>
+        /// <returns>nothing.</returns>
         public async Task Eat(ulong currentPlayerId, string playerToEat)
         {
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
             CheckPlayerStatus(currentPlayer, GameStep.Night, PlayerState.Alive, Card.Werefox, "Eat");
             currentPlayer.Vote = await CheckNickname(currentPlayer, playerToEat, true);
-            var electedPlayer = GetVotes(CurrentGame.GetAliveWerefoxes());
-            if (electedPlayer != null) await EatPlayer(electedPlayer);
+            var electedPlayer = GetVotes(CurrentGame.GetAliveWerefoxes().ToList());
+            if (electedPlayer != null)
+            {
+                await EatPlayer(electedPlayer);
+            }
         }
 
         private async Task EatPlayer(IPlayer electedPlayer)
         {
             await Die(electedPlayer, "has been eaten by werefoxes :fox:. Yum yum :yum:.");
-            if (!await CheckWin()) await Day();
+            if (!await CheckWin())
+            {
+                await Day();
+            }
         }
 
-        private IPlayer? GetVotes(IEnumerable<IPlayer> players)
+        private IPlayer? GetVotes(IList<IPlayer> players)
         {
-            if (players.Any(p => p.Vote == null)) return null;
+            if (players.Any(p => p.Vote == null))
+            {
+                return null;
+            }
 
-            var votes = players.GroupBy(p => p.Vote).OrderByDescending(p => p.Count());
+            var votes = players.GroupBy(p => p.Vote)
+                .OrderByDescending(p => p.Count())
+                .ToList();
             var voteList = votes.Select(
-                v => "- " + v.Key.GetMention() + " " + v.Count() + " votes"
-            );
+                v => "- " + v.Key?.GetMention() + " " + v.Count() + " votes");
             CurrentGame.SendMessageAsync("Result of the vote: \r\n"
                                          + string.Join("\r\n", voteList));
             var playerEaten = votes.First().Key;
-            foreach (var p in CurrentGame.Players) p.Vote = null;
-
+            foreach (var p in CurrentGame.Players)
+            {
+                p.Vote = null;
+            }
+            
             return playerEaten;
         }
 
         private async Task<bool> CheckWin()
         {
             var alivePlayers = CurrentGame.Players.Where(p => p.State == PlayerState.Alive).ToList();
-            if (alivePlayers.Count != 1) return false;
+            if (alivePlayers.Count != 1)
+            {
+                return false;
+            }
 
             var winner = alivePlayers.First();
             await CurrentGame.SendMessageAsync("The Game has finished.\n"
@@ -195,6 +262,11 @@ namespace Werefox.Engine
                                                Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
         }
 
+        /// <summary>
+        /// Leave the game.
+        /// </summary>
+        /// <param name="currentPlayerId">current player ID.</param>
+        /// <returns>nothing.</returns>
         public async Task Leave(ulong currentPlayerId)
         {
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -202,7 +274,12 @@ namespace Werefox.Engine
             await Die(currentPlayer, "has left the game :door:.");
             await CheckWin();
         }
-
+        
+        /// <summary>
+        /// Reveal you card to everybody.
+        /// </summary>
+        /// <param name="currentPlayerId">current player ID.</param>
+        /// <returns>nothing.</returns>
         public async Task Reveal(ulong currentPlayerId)
         {
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -211,16 +288,25 @@ namespace Werefox.Engine
                 $"REVELATION: {currentPlayer.GetMention()} is a {Utils.CardToS(currentPlayer.Card)}.");
         }
 
+        /// <summary>
+        /// Show you who is who, the card to everybody.
+        /// </summary>
+        /// <param name="currentPlayerId">current player ID.</param>
+        /// <returns>nothing.</returns>
         public async Task WhoIsWho(ulong currentPlayerId)
         {
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
             CheckPlayerStatus(currentPlayer, null, PlayerState.Dead, null, "WhoIsWho");
             var statuses = CurrentGame.Players.Select(
-                p => $"- {p.GetMention()} is {Utils.AliveToS(p.State)} and is a  {Utils.CardToS(p.Card)}."
-            );
+                p => $"- {p.GetMention()} is {Utils.AliveToS(p.State)} and is a  {Utils.CardToS(p.Card)}.");
             await currentPlayer.SendMessageAsync("Result of the vote: \r\n" + string.Join("\r\n", statuses));
         }
 
+        /// <summary>
+        /// Show the status of the game and who is alive. 
+        /// </summary>
+        /// <param name="currentPlayerId">current player ID.</param>
+        /// <returns>nothing.</returns>
         public async Task Status(ulong currentPlayerId)
         {
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -236,34 +322,55 @@ namespace Werefox.Engine
         {
             var currentPlayer = CurrentGame.GetById(playerId);
             if (currentPlayer == null)
+            {
                 throw new InvalidOperationException("No current player can be found " + playerId);
+            }
 
             return currentPlayer;
         }
 
-        internal void CheckPlayerStatus(IPlayer currentPlayer, GameStep? step, PlayerState? onlyAlivePlayer,
-            Card? onlyCard,
-            string commandName)
+        /// <summary>
+        /// CheckPlayerStatus for commands.
+        /// </summary>
+        /// <param name="currentPlayer">current player.</param>
+        /// <param name="step">check the game step, null no check.</param>
+        /// <param name="onlyAlivePlayer">true: only alive player, false: only dead player, null no check.</param>
+        /// <param name="onlyCard">check if the player has this card, null no check.</param>
+        /// <param name="commandName">command name.</param>
+        /// <exception cref="CommandContextException">throws CommandContextException if check fails.</exception>
+        internal void CheckPlayerStatus(IPlayer currentPlayer, GameStep? step, PlayerState? onlyAlivePlayer, Card? onlyCard, string commandName)
         {
             var prefix = $":no_entry: The command {commandPrefix}{commandName} must be use ";
-            if (CurrentGame == null) throw new CommandContextException(prefix + "during the game. (No game started)");
+            if (CurrentGame == null)
+            {
+                throw new CommandContextException(prefix + "during the game. (No game started)");
+            }
 
             if (step != null && CurrentGame.Step != step)
+            {
                 throw new CommandContextException(
                     prefix +
                     $"during the {Utils.StepToS(step.Value)}. (It's now the {Utils.StepToS(CurrentGame.Step)})");
+            }
 
-            if (currentPlayer == null) throw new CommandContextException(prefix + "when you are part of the game.");
+            if (currentPlayer == null)
+            {
+                throw new CommandContextException(prefix + "when you are part of the game.");
+            }
 
             if (onlyAlivePlayer != null && currentPlayer.State != onlyAlivePlayer)
+            {
                 throw new CommandContextException(
                     prefix +
                     $"when you are {Utils.AliveToS(onlyAlivePlayer.Value)}. (Now you are {Utils.AliveToS(currentPlayer.State)})");
+            }
 
             if (onlyCard != null && currentPlayer.Card != onlyCard)
+            {
                 throw new CommandContextException(
                     prefix +
                     $"when you are a {Utils.CardToS(onlyCard.Value)}. (Now you are {Utils.CardToS(currentPlayer.Card)})");
+            }
         }
     }
 }
