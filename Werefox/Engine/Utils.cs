@@ -1,51 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Werefox.Interfaces;
 
 namespace Werefox.Engine
 {
     public static class Utils
     {
-        public static string CardToS(Card card)
+        public static string ToDescription<TEnum>(this TEnum enumValue)
         {
-            return card switch
-            {
-                Card.Werefox => "werefox :fox:",
-                Card.VillagePeople => "village people :man_farmer:",
-                Card.LittleGirl => "littleGirl :girl:",
-                Card.Seer => "seer :crystal_ball:",
-                Card.Thief => "thief :supervillain:",
-                Card.Hunter => "hunter :gun:",
-                Card.Cupid => "Cupid :angel:",
-                Card.Witch => "witch :woman_mage:",
-                _ => ":x: UNKNOWN Card"
-            };
-        }
+            FieldInfo info = enumValue.GetType().GetField(enumValue.ToString());
+            var attributes = (DescriptionAttribute[])info.GetCustomAttributes(typeof(DescriptionAttribute), false);
 
-        public static string AliveToS(PlayerState playerState)
-        {
-            return playerState switch
-            {
-                PlayerState.Alive => "alive :star_struck:",
-                PlayerState.Dead => "dead :skull:",
-                PlayerState.SchrödingersCat => "Schrödinger's cat :scream_cat:",
-                _ => ":x: UNKNOWN PlayerStep"
-            };
-        }
-
-        public static string StepToS(GameStep step)
-        {
-            return step switch
-            {
-                GameStep.ThiefStep => "thief step :supervillain:",
-                GameStep.CupidStep => "cupid/lover Step :angel:",
-
-                GameStep.SeerStep => "seer :crystal_ball:",
-                GameStep.Night => "night :crescent_moon:",
-                GameStep.WitchStep => "witch step :woman_mage:",
-                GameStep.Day => "day :sunny:",
-                _ => ":x: UNKNOWN GameStep"
-            };
+            return attributes?[0].Description ?? enumValue.ToString();
         }
 
         public static string DisplayPlayerList(IEnumerable<IPlayer> players)

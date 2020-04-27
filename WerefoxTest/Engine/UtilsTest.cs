@@ -36,5 +36,37 @@ namespace WerefoxTest.Engine
 
             actual.Should().Be("player1, player2");
         }
+
+        [Fact]
+        public void CardToSTest()
+        {
+            Card.Werefox.ToDescription().Should().Be("werefox :fox:");
+            Card.VillagePeople.ToDescription().Should().Be("village people :man_farmer:");
+            Card.LittleGirl.ToDescription().Should().Be("littleGirl :girl:");
+            Card.Seer.ToDescription().Should().Be("seer :crystal_ball:");
+            Card.Thief.ToDescription().Should().Be("thief :supervillain:");
+            Card.Hunter.ToDescription().Should().Be("hunter :gun:");
+            Card.Cupid.ToDescription().Should().Be("Cupid :angel:");
+            Card.Witch.ToDescription().Should().Be("witch :woman_mage:");
+        }
+
+        [Fact]
+        public void AliveToSTest()
+        {
+            PlayerState.Alive.ToDescription().Should().Be("alive :star_struck:");
+            PlayerState.Dead.ToDescription().Should().Be("dead :skull:");
+            PlayerState.SchrödingersCat.ToDescription().Should().Be("Schrödinger's cat :scream_cat:");
+        }
+
+        [Fact]
+        public void StepToSTest()
+        {
+            GameStep.ThiefStep.ToDescription().Should().Be("thief step :supervillain:");
+            GameStep.CupidStep.ToDescription().Should().Be("cupid/lover Step :angel:");
+            GameStep.SeerStep.ToDescription().Should().Be("seer :crystal_ball:");
+            GameStep.Night.ToDescription().Should().Be("night :crescent_moon:");
+            GameStep.WitchStep.ToDescription().Should().Be("witch step :woman_mage:");
+            GameStep.Day.ToDescription().Should().Be("day :sunny:");
+        }
     }
 }

@@ -83,7 +83,7 @@ namespace Werefox.Engine
         {
             foreach (var player in CurrentGame.GetAlivePlayers())
             {
-                await player.SendMessageAsync($"You are a {Utils.CardToS(player.Card)}");
+                await player.SendMessageAsync($"You are a {player.Card.ToDescription()}");
             }
 
             foreach (var werefox in CurrentGame.GetAliveWerefoxes())
@@ -238,14 +238,14 @@ namespace Werefox.Engine
             if (playerEaten.State == PlayerState.Dead)
             {
                 await sendMessage.SendMessageAsync(
-                    $":name_badge: {playerEaten.GetMention()} is {Utils.AliveToS(PlayerState.Dead)}. Choose somebody else.");
+                    $":name_badge: {playerEaten.GetMention()} is {PlayerState.Dead.ToDescription()}. Choose somebody else.");
                 return null;
             }
 
             if (restrictOnWerefox && playerEaten.Card == Card.Werefox)
             {
                 await sendMessage.SendMessageAsync(
-                    $":name_badge: {playerEaten.GetMention()} is a {Utils.CardToS(playerEaten.Card)}. Choose somebody else.");
+                    $":name_badge: {playerEaten.GetMention()} is a {playerEaten.Card.ToDescription()}. Choose somebody else.");
                 return null;
             }
 
@@ -257,7 +257,7 @@ namespace Werefox.Engine
         {
             player.State = PlayerState.Dead;
             await CurrentGame.SendMessageAsync(
-                $"{player.GetMention()} {message} He was a {Utils.CardToS(player.Card)}.");
+                $"{player.GetMention()} {message} He was a {player.Card.ToDescription()}.");
             await CurrentGame.SendMessageAsync("Remaining players: " +
                                                Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
         }
@@ -285,7 +285,7 @@ namespace Werefox.Engine
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
             CheckPlayerStatus(currentPlayer, null, PlayerState.Alive, null, "Reveal");
             await currentPlayer.SendMessageAsync(
-                $"REVELATION: {currentPlayer.GetMention()} is a {Utils.CardToS(currentPlayer.Card)}.");
+                $"REVELATION: {currentPlayer.GetMention()} is a {currentPlayer.Card.ToDescription()}.");
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace Werefox.Engine
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
             CheckPlayerStatus(currentPlayer, null, PlayerState.Dead, null, "WhoIsWho");
             var statuses = CurrentGame.Players.Select(
-                p => $"- {p.GetMention()} is {Utils.AliveToS(p.State)} and is a  {Utils.CardToS(p.Card)}.");
+                p => $"- {p.GetMention()} is {p.State.ToDescription()} and is a  {p.Card.ToDescription()}.");
             await currentPlayer.SendMessageAsync("Result of the vote: \r\n" + string.Join("\r\n", statuses));
         }
 
@@ -311,10 +311,10 @@ namespace Werefox.Engine
         {
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
             CheckPlayerStatus(currentPlayer, null, null, null, "Status");
-            await CurrentGame.SendMessageAsync($"It's now the {Utils.StepToS(CurrentGame.Step)}.");
-            await CurrentGame.SendMessageAsync(Utils.AliveToS(PlayerState.Alive) + " players are: " +
+            await CurrentGame.SendMessageAsync($"It's now the {CurrentGame.Step.ToDescription()}.");
+            await CurrentGame.SendMessageAsync(PlayerState.Alive.ToDescription() + " players are: " +
                                                Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
-            await CurrentGame.SendMessageAsync(Utils.AliveToS(PlayerState.Dead) + " players are: " +
+            await CurrentGame.SendMessageAsync(PlayerState.Dead.ToDescription() + " players are: " +
                                                Utils.DisplayPlayerList(CurrentGame.GetDeadPlayers()));
         }
 
@@ -350,7 +350,7 @@ namespace Werefox.Engine
             {
                 throw new CommandContextException(
                     prefix +
-                    $"during the {Utils.StepToS(step.Value)}. (It's now the {Utils.StepToS(CurrentGame.Step)})");
+                    $"during the {step.Value.ToDescription()}. (It's now the {CurrentGame.Step.ToDescription()})");
             }
 
             if (currentPlayer == null)
@@ -362,14 +362,14 @@ namespace Werefox.Engine
             {
                 throw new CommandContextException(
                     prefix +
-                    $"when you are {Utils.AliveToS(onlyAlivePlayer.Value)}. (Now you are {Utils.AliveToS(currentPlayer.State)})");
+                    $"when you are {onlyAlivePlayer.Value.ToDescription()}. (Now you are {currentPlayer.State.ToDescription()})");
             }
 
             if (onlyCard != null && currentPlayer.Card != onlyCard)
             {
                 throw new CommandContextException(
                     prefix +
-                    $"when you are a {Utils.CardToS(onlyCard.Value)}. (Now you are {Utils.CardToS(currentPlayer.Card)})");
+                    $"when you are a {onlyCard.Value.ToDescription()}. (Now you are {currentPlayer.Card.ToDescription()})");
             }
         }
     }

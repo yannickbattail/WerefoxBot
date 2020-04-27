@@ -1,9 +1,14 @@
-﻿namespace Werefox.Interfaces
+﻿using System.ComponentModel;
+
+namespace Werefox.Interfaces
 {
     public enum PlayerState
     {
+        [Description("alive :star_struck:")]
         Alive,
+        [Description("dead :skull:")]
         Dead,
-        SchrödingersCat
+        [Description("Schrödinger's cat :scream_cat:")]
+        SchrödingersCat,
     }
 }
