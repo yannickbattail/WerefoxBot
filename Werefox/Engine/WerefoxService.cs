@@ -48,8 +48,7 @@ namespace Werefox.Engine
         public async Task Start(ulong currentPlayerId, IGame game)
         {
             CurrentGame = game;
-            var currentPlayer = GetCurrentPlayer(currentPlayerId);
-            CheckPlayerStatus(currentPlayer, null, null, null, "Stop");
+            CheckPlayerStatus(currentPlayerId, null, null, null, "Stop");
             if (CurrentGame.Players.Count >= 2)
             {
                 await StartGame();
@@ -100,8 +99,7 @@ namespace Werefox.Engine
         /// <returns>nothing.</returns>
         public async Task Stop(ulong currentPlayerId)
         {
-            var currentPlayer = GetCurrentPlayer(currentPlayerId);
-            CheckPlayerStatus(currentPlayer, null, null, null, "Stop");
+            CheckPlayerStatus(currentPlayerId, null, null, null, "Stop");
             await StopGame();
         }
 
@@ -141,8 +139,8 @@ namespace Werefox.Engine
         /// <returns>nothing.</returns>
         public async Task Sacrifice(ulong currentPlayerId, string playerToSacrifice)
         {
+            CheckPlayerStatus(currentPlayerId, GameStep.Day, PlayerState.Alive, null, "Sacrifice");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
-            CheckPlayerStatus(currentPlayer, GameStep.Day, PlayerState.Alive, null, "Sacrifice");
             currentPlayer.Vote = await CheckNickname(CurrentGame, playerToSacrifice, false);
 
             var electedPlayer = GetVotes(CurrentGame.GetAlivePlayers().ToList());
@@ -169,8 +167,8 @@ namespace Werefox.Engine
         /// <returns>nothing.</returns>
         public async Task Eat(ulong currentPlayerId, string playerToEat)
         {
+            CheckPlayerStatus(currentPlayerId, GameStep.Night, PlayerState.Alive, Card.Werefox, "Eat");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
-            CheckPlayerStatus(currentPlayer, GameStep.Night, PlayerState.Alive, Card.Werefox, "Eat");
             currentPlayer.Vote = await CheckNickname(currentPlayer, playerToEat, true);
             var electedPlayer = GetVotes(CurrentGame.GetAliveWerefoxes().ToList());
             if (electedPlayer != null)
@@ -269,8 +267,8 @@ namespace Werefox.Engine
         /// <returns>nothing.</returns>
         public async Task Leave(ulong currentPlayerId)
         {
+            CheckPlayerStatus(currentPlayerId, null, PlayerState.Alive, null, "Leave");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
-            CheckPlayerStatus(currentPlayer, null, PlayerState.Alive, null, "Leave");
             await Die(currentPlayer, "has left the game :door:.");
             await CheckWin();
         }
@@ -282,8 +280,8 @@ namespace Werefox.Engine
         /// <returns>nothing.</returns>
         public async Task Reveal(ulong currentPlayerId)
         {
+            CheckPlayerStatus(currentPlayerId, null, PlayerState.Alive, null, "Reveal");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
-            CheckPlayerStatus(currentPlayer, null, PlayerState.Alive, null, "Reveal");
             await currentPlayer.SendMessageAsync(
                 $"REVELATION: {currentPlayer.GetMention()} is a {currentPlayer.Card.ToDescription()}.");
         }
@@ -295,8 +293,8 @@ namespace Werefox.Engine
         /// <returns>nothing.</returns>
         public async Task WhoIsWho(ulong currentPlayerId)
         {
+            CheckPlayerStatus(currentPlayerId, null, PlayerState.Dead, null, "WhoIsWho");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
-            CheckPlayerStatus(currentPlayer, null, PlayerState.Dead, null, "WhoIsWho");
             var statuses = CurrentGame.Players.Select(
                 p => $"- {p.GetMention()} is {p.State.ToDescription()} and is a  {p.Card.ToDescription()}.");
             await currentPlayer.SendMessageAsync("Result of the vote: \r\n" + string.Join("\r\n", statuses));
@@ -309,8 +307,7 @@ namespace Werefox.Engine
         /// <returns>nothing.</returns>
         public async Task Status(ulong currentPlayerId)
         {
-            var currentPlayer = GetCurrentPlayer(currentPlayerId);
-            CheckPlayerStatus(currentPlayer, null, null, null, "Status");
+            CheckPlayerStatus(currentPlayerId, null, null, null, "Status");
             await CurrentGame.SendMessageAsync($"It's now the {CurrentGame.Step.ToDescription()}.");
             await CurrentGame.SendMessageAsync(PlayerState.Alive.ToDescription() + " players are: " +
                                                Utils.DisplayPlayerList(CurrentGame.GetAlivePlayers()));
@@ -332,13 +329,13 @@ namespace Werefox.Engine
         /// <summary>
         /// CheckPlayerStatus for commands.
         /// </summary>
-        /// <param name="currentPlayer">current player.</param>
+        /// <param name="currentPlayerId">current player ID.</param>
         /// <param name="step">check the game step, null no check.</param>
         /// <param name="onlyAlivePlayer">true: only alive player, false: only dead player, null no check.</param>
         /// <param name="onlyCard">check if the player has this card, null no check.</param>
         /// <param name="commandName">command name.</param>
         /// <exception cref="CommandContextException">throws CommandContextException if check fails.</exception>
-        internal void CheckPlayerStatus(IPlayer currentPlayer, GameStep? step, PlayerState? onlyAlivePlayer, Card? onlyCard, string commandName)
+        internal void CheckPlayerStatus(ulong currentPlayerId, GameStep? step, PlayerState? onlyAlivePlayer, Card? onlyCard, string commandName)
         {
             var prefix = $":no_entry: The command {commandPrefix}{commandName} must be use ";
             if (CurrentGame == null)
@@ -353,6 +350,7 @@ namespace Werefox.Engine
                     $"during the {step.Value.ToDescription()}. (It's now the {CurrentGame.Step.ToDescription()})");
             }
 
+            var currentPlayer = GetCurrentPlayer(currentPlayerId);
             if (currentPlayer == null)
             {
                 throw new CommandContextException(prefix + "when you are part of the game.");
