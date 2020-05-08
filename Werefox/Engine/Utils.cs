@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -19,6 +21,12 @@ namespace Werefox.Engine
         public static string DisplayPlayerList(IEnumerable<IPlayer> players)
         {
             return string.Join(", ", players.Select(p => p.GetMention()));
+        }
+
+        public static T GetRandomItem<T>(this IList<T> list)
+        {
+            var index = new Random().Next(list.Count);
+            return list[index];
         }
     }
 }

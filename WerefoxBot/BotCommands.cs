@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -184,6 +186,39 @@ namespace WerefoxBot
             {
                 await ctx.RespondAsync(e.Message);
             }
+        }
+
+        [Command("fox")]
+        [Description("Display an image of a fox.")]
+        public async Task Fox(CommandContext ctx)
+        {
+            using var wc = new WebClient();
+            var html = wc.DownloadString("https://images.search.yahoo.com/search/images?p=fox");
+            var imageUrl = new Regex(@"<noscript><img src='([^']*)'")
+                .Matches(html)
+                .Select(m => m.Groups[1].Value)
+                .ToList()
+                .GetRandomItem();
+            var embedBuilder = new DiscordEmbedBuilder
+            {
+                Title = "Foxy fox!",
+                ImageUrl = imageUrl,
+                Url = imageUrl,
+                Author = new DiscordEmbedBuilder.EmbedAuthor()
+                {
+                    Name = "Were fox bot",
+                    Url = "https://github.com/yannickbattail/WerefoxBot",
+                    IconUrl = "https://raw.githubusercontent.com/yannickbattail/WerefoxBot/master/images/werefox.png",
+                },
+                Description = "Just a fox! :orange_heart:",
+                Color = DiscordColor.Orange,
+                Footer = new DiscordEmbedBuilder.EmbedFooter()
+                {
+                    Text = "cute isn't it ?",
+                    IconUrl = "https://raw.githubusercontent.com/yannickbattail/WerefoxBot/master/images/dark-werefox-dark-eyes.png"
+                },
+            };
+            await ctx.RespondAsync(embed: embedBuilder);
         }
 
         private void CheckContext(CommandContext ctx, bool? needPrivateChannel)
