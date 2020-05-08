@@ -6,11 +6,10 @@ using Werefox.Implementations;
 using Werefox.Interfaces;
 using Xunit;
 
-namespace WerefoxTest.Implementations
+namespace Werefox.Tests.Implementations
 {
     public class BaseGameTest
     {
-
         [Fact]
         internal void GetByNameTest()
         {
@@ -72,8 +71,8 @@ namespace WerefoxTest.Implementations
         internal void StartTest()
         {
             var game = new Mock<BaseGame>();
-            game.Setup(x => x.SendMessageAsync(""));
-            var players = new List<IPlayer>()
+            game.Setup(x => x.SendMessageAsync(string.Empty));
+            game.Object.Players = new List<IPlayer>()
             {
                 CreateMockedPlayer(1).Object,
                 CreateMockedPlayer(2).Object,
@@ -86,13 +85,13 @@ namespace WerefoxTest.Implementations
             actual.Should().BeNull();
         }
 
-        private Mock<IPlayer> CreateMockedPlayer(ulong id)
+        private static Mock<IPlayer> CreateMockedPlayer(ulong id)
         {
             var player = new Mock<IPlayer>();
             player.Setup(x => x.GetId()).Returns(id);
-            player.Setup(x => x.GetMention()).Returns("<!"+id+">");
-            player.Setup(x => x.GetDisplayName()).Returns("player"+id);
-            player.Setup(x => x.SendMessageAsync(""));
+            player.Setup(x => x.GetMention()).Returns("<!" + id + ">");
+            player.Setup(x => x.GetDisplayName()).Returns("player" + id);
+            player.Setup(x => x.SendMessageAsync(string.Empty));
             return player;
         }
     }

@@ -17,7 +17,7 @@ namespace Werefox.Engine
     [SuppressMessage("ReSharper", "SA1202")]
     public class WerefoxService
     {
-        private IGame? CurrentGame { get; set; }
+        internal IGame? CurrentGame { get; set; }
         
         private readonly string commandPrefix;
 
@@ -72,7 +72,7 @@ namespace Werefox.Engine
         /// <summary>
         /// Shuffle cards for players.
         /// </summary>
-        public void ShufflePlayerCards()
+        internal void ShufflePlayerCards()
         {
             var indexWereFox = new Random().Next(CurrentGame.Players.Count);
             CurrentGame.Players[indexWereFox].Card = Card.Werefox;

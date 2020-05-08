@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.CommandsNext", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Interactivity", "DSharpPlus\DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj", "{7298E618-8483-45AD-BFDC-AAE320F78CDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WerefoxTest", "WerefoxTest\WerefoxTest.csproj", "{714A1442-EA8E-4752-B1AC-C4AE1807864B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Werefox.Tests", "Werefox.Tests\Werefox.Tests.csproj", "{714A1442-EA8E-4752-B1AC-C4AE1807864B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Werefox", "Werefox\Werefox.csproj", "{9B7A2BEE-59C4-4093-94AD-C44329BF7815}"
 EndProject

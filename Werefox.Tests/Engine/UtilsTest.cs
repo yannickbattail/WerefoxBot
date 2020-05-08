@@ -5,7 +5,7 @@ using Werefox.Engine;
 using Werefox.Interfaces;
 using Xunit;
 
-namespace WerefoxTest.Engine
+namespace Werefox.Tests.Engine
 {
     public class UtilsTest
     {
@@ -16,7 +16,7 @@ namespace WerefoxTest.Engine
 
             var actual = Utils.DisplayPlayerList(players);
 
-            actual.Should().Be("");
+            actual.Should().Be(string.Empty);
         }
 
         [Fact]

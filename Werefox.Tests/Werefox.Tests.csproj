@@ -2,16 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-
-        <IsPackable>false</IsPackable>
-
-        <AssemblyName>WerefoxTest</AssemblyName>
-
-        <RootNamespace>WerefoxTest</RootNamespace>
-
         <Nullable>enable</Nullable>
-
-        <Company>WerefoxBot</Company>
+        <RootNamespace>Werefox.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
