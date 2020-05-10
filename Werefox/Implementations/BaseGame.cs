@@ -38,7 +38,7 @@ namespace Werefox.Implementations
                 );
         }
 
-        public IPlayer? GetById(ulong? id)
+        public IPlayer? GetById(string? id)
         {
             return Players.FirstOrDefault(p => p.GetId() == id);
         }

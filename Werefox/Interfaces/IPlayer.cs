@@ -6,7 +6,7 @@
         Card Card { get; set; }
         bool IsLover { get; set; }
         PlayerState State { get; set; }
-        ulong GetId();
+        string GetId();
         string GetMention();
         string GetDisplayName();
     }

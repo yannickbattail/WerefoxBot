@@ -20,9 +20,9 @@ namespace WerefoxBot.Implementations
             await dmChannel.SendMessageAsync(message);
         }
 
-        public override ulong GetId()
+        public override string GetId()
         {
-            return user.Id;
+            return user.Id.ToString();
         }
 
         public override string GetMention()

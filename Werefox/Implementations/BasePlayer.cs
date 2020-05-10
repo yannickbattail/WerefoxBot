@@ -13,7 +13,7 @@ namespace Werefox.Implementations
 
         public abstract Task SendMessageAsync(string message);
 
-        public abstract ulong GetId();
+        public abstract string GetId();
 
         public abstract string GetMention();
 

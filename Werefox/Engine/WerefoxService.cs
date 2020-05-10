@@ -45,7 +45,7 @@ namespace Werefox.Engine
         /// <param name="currentPlayerId">current player ID.</param>
         /// <param name="game">the new game.</param>
         /// <returns>nothing.</returns>
-        public async Task Start(ulong currentPlayerId, IGame game)
+        public async Task Start(string currentPlayerId, IGame game)
         {
             CurrentGame = game;
             CheckPlayerStatus(currentPlayerId, null, null, null, "Stop");
@@ -74,8 +74,8 @@ namespace Werefox.Engine
         /// </summary>
         internal void ShufflePlayerCards()
         {
-            var indexWereFox = new Random().Next(CurrentGame.Players.Count);
-            CurrentGame.Players[indexWereFox].Card = Card.Werefox;
+            var ranPlayer = CurrentGame.GetAlivePlayers().ToList().GetRandomItem();
+            ranPlayer.Card = Card.Werefox;
         }
 
         private async Task TellCardToPlayers()
@@ -97,7 +97,7 @@ namespace Werefox.Engine
         /// </summary>
         /// <param name="currentPlayerId">current player ID.</param>
         /// <returns>nothing.</returns>
-        public async Task Stop(ulong currentPlayerId)
+        public async Task Stop(string currentPlayerId)
         {
             CheckPlayerStatus(currentPlayerId, null, null, null, "Stop");
             await StopGame();
@@ -137,7 +137,7 @@ namespace Werefox.Engine
         /// <param name="currentPlayerId">current player ID.</param>
         /// <param name="playerToSacrifice">player you vote to sacrifice.</param>
         /// <returns>nothing.</returns>
-        public async Task Sacrifice(ulong currentPlayerId, string playerToSacrifice)
+        public async Task Sacrifice(string currentPlayerId, string playerToSacrifice)
         {
             CheckPlayerStatus(currentPlayerId, GameStep.Day, PlayerState.Alive, null, "Sacrifice");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -165,7 +165,7 @@ namespace Werefox.Engine
         /// <param name="currentPlayerId">current player ID.</param>
         /// <param name="playerToEat">player you vote to eat.</param>
         /// <returns>nothing.</returns>
-        public async Task Eat(ulong currentPlayerId, string playerToEat)
+        public async Task Eat(string currentPlayerId, string playerToEat)
         {
             CheckPlayerStatus(currentPlayerId, GameStep.Night, PlayerState.Alive, Card.Werefox, "Eat");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -265,20 +265,20 @@ namespace Werefox.Engine
         /// </summary>
         /// <param name="currentPlayerId">current player ID.</param>
         /// <returns>nothing.</returns>
-        public async Task Leave(ulong currentPlayerId)
+        public async Task Leave(string currentPlayerId)
         {
             CheckPlayerStatus(currentPlayerId, null, PlayerState.Alive, null, "Leave");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
             await Die(currentPlayer, "has left the game :door:.");
             await CheckWin();
         }
-        
+
         /// <summary>
         /// Reveal you card to everybody.
         /// </summary>
         /// <param name="currentPlayerId">current player ID.</param>
         /// <returns>nothing.</returns>
-        public async Task Reveal(ulong currentPlayerId)
+        public async Task Reveal(string currentPlayerId)
         {
             CheckPlayerStatus(currentPlayerId, null, PlayerState.Alive, null, "Reveal");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -291,7 +291,7 @@ namespace Werefox.Engine
         /// </summary>
         /// <param name="currentPlayerId">current player ID.</param>
         /// <returns>nothing.</returns>
-        public async Task WhoIsWho(ulong currentPlayerId)
+        public async Task WhoIsWho(string currentPlayerId)
         {
             CheckPlayerStatus(currentPlayerId, null, PlayerState.Dead, null, "WhoIsWho");
             var currentPlayer = GetCurrentPlayer(currentPlayerId);
@@ -305,7 +305,7 @@ namespace Werefox.Engine
         /// </summary>
         /// <param name="currentPlayerId">current player ID.</param>
         /// <returns>nothing.</returns>
-        public async Task Status(ulong currentPlayerId)
+        public async Task Status(string currentPlayerId)
         {
             CheckPlayerStatus(currentPlayerId, null, null, null, "Status");
             await CurrentGame.SendMessageAsync($"It's now the {CurrentGame.Step.ToDescription()}.");
@@ -315,7 +315,7 @@ namespace Werefox.Engine
                                                Utils.DisplayPlayerList(CurrentGame.GetDeadPlayers()));
         }
 
-        private IPlayer GetCurrentPlayer(ulong playerId)
+        private IPlayer GetCurrentPlayer(string playerId)
         {
             var currentPlayer = CurrentGame.GetById(playerId);
             if (currentPlayer == null)
@@ -335,7 +335,8 @@ namespace Werefox.Engine
         /// <param name="onlyCard">check if the player has this card, null no check.</param>
         /// <param name="commandName">command name.</param>
         /// <exception cref="CommandContextException">throws CommandContextException if check fails.</exception>
-        internal void CheckPlayerStatus(ulong currentPlayerId, GameStep? step, PlayerState? onlyAlivePlayer, Card? onlyCard, string commandName)
+        internal void CheckPlayerStatus(string currentPlayerId, GameStep? step, PlayerState? onlyAlivePlayer,
+            Card? onlyCard, string commandName)
         {
             var prefix = $":no_entry: The command {commandPrefix}{commandName} must be use ";
             if (CurrentGame == null)

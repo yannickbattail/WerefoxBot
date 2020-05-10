@@ -69,7 +69,7 @@ namespace WerefoxBot
                 GameInCreation = false;
                 var players = discordUsers.Select(u => new Player(ctx.Guild.Members[u.Id]));
                 var game = new Game(ctx.Channel, players);
-                await Service.Start(ctx.User.Id, game);
+                await Service.Start(ctx.User.Id.ToString(), game);
             }
             catch (CommandContextException e)
             {
@@ -84,7 +84,7 @@ namespace WerefoxBot
             try
             {
                 CheckContext(ctx, false);
-                await Service.Stop(ctx.User.Id);
+                await Service.Stop(ctx.User.Id.ToString());
             }
             catch (CommandContextException e)
             {
@@ -99,7 +99,7 @@ namespace WerefoxBot
             try
             {
                 CheckContext(ctx, false);
-                await Service.Sacrifice(ctx.User.Id, playerToSacrifice);
+                await Service.Sacrifice(ctx.User.Id.ToString(), playerToSacrifice);
             }
             catch (CommandContextException e)
             {
@@ -115,7 +115,7 @@ namespace WerefoxBot
             try
             {
                 CheckContext(ctx, true);
-                await Service.Eat(ctx.User.Id, playerToEat);
+                await Service.Eat(ctx.User.Id.ToString(), playerToEat);
             }
             catch (CommandContextException e)
             {
@@ -130,7 +130,7 @@ namespace WerefoxBot
             try
             {
                 CheckContext(ctx, null);
-                await Service.Leave(ctx.User.Id);
+                await Service.Leave(ctx.User.Id.ToString());
             }
             catch (CommandContextException e)
             {
@@ -150,7 +150,7 @@ namespace WerefoxBot
                 var msg = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id,
                     TimeSpan.FromSeconds(60));
                 if (!msg.TimedOut && msg.Result.Content.Equals("yes", StringComparison.InvariantCultureIgnoreCase))
-                    await Service.Reveal(ctx.User.Id);
+                    await Service.Reveal(ctx.User.Id.ToString());
             }
             catch (CommandContextException e)
             {
@@ -165,7 +165,7 @@ namespace WerefoxBot
             try
             {
                 CheckContext(ctx, true);
-                await Service.WhoIsWho(ctx.User.Id);
+                await Service.WhoIsWho(ctx.User.Id.ToString());
             }
             catch (CommandContextException e)
             {
@@ -180,7 +180,7 @@ namespace WerefoxBot
             try
             {
                 CheckContext(ctx, null);
-                await Service.Status(ctx.User.Id);
+                await Service.Status(ctx.User.Id.ToString());
             }
             catch (CommandContextException e)
             {

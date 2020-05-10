@@ -10,6 +10,6 @@ namespace Werefox.Interfaces
         IEnumerable<IPlayer> GetDeadPlayers();
         IEnumerable<IPlayer> GetAliveWerefoxes();
         IPlayer? GetByName(string? displayName);
-        IPlayer? GetById(ulong? id);
+        IPlayer? GetById(string? id);
     }
 }
